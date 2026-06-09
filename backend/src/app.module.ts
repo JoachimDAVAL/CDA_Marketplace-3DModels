@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { ArtistsModule } from './artists/artists.module';
 import { CategoriesModule } from './categories/categories.module';
 import { StorageModule } from './storage/storage.module';
+import { ModelsModule } from './models/models.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { StorageModule } from './storage/storage.module';
     UsersModule,
     ArtistsModule,
     CategoriesModule,
+    ModelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
