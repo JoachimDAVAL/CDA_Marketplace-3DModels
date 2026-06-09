@@ -3,7 +3,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  // rawBody: true expose req.rawBody sur chaque requête.
+  // Requis par Stripe pour vérifier la signature HMAC du webhook —
+  // le body parsé en JSON ne suffit pas car la signature est calculée sur les bytes bruts.
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   // credentials: true est requis pour que le frontend puisse envoyer
   // les cookies/headers d'auth cross-origin (port 5173 → port 3000)
