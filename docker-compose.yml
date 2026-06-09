@@ -1,12 +1,12 @@
 services:
   db:
     image: postgres:15
-    container_name: cda_project
+    container_name: marketplace-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: boutique_3d
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: marketplace3d
     ports:
       - "5433:5432"
     volumes:
@@ -14,4 +14,3 @@ services:
 
 volumes:
   postgres_data:
-  
