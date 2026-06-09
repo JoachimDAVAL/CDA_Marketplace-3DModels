@@ -1,7 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
-import { ArtistStatus } from '@prisma/client';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { ArtistStatus, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
+import { UpdateArtistStatusDto } from './dto/update-artist-status.dto';
 
 @Injectable()
 export class ArtistsService {
@@ -20,6 +21,31 @@ export class ArtistsService {
 
     return this.prisma.artist.create({
       data: { ...dto, userId },
+    });
+  }
+
+  async updateStatus(artistId: string, dto: UpdateArtistStatusDto) {
+    const artist = await this.prisma.artist.findUnique({
+      where: { id: artistId },
+    });
+    if (!artist) throw new NotFoundException('Artist not found');
+
+    if (dto.status === ArtistStatus.APPROVED) {
+      return this.prisma.$transaction([
+        this.prisma.artist.update({
+          where: { id: artistId },
+          data: { status: ArtistStatus.APPROVED },
+        }),
+        this.prisma.user.update({
+          where: { id: artist.userId },
+          data: { role: Role.ARTIST },
+        }),
+      ]);
+    }
+
+    return this.prisma.artist.update({
+      where: { id: artistId },
+      data: { status: dto.status },
     });
   }
 }
