@@ -1,11 +1,12 @@
 import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { ArtistStatus, FileType, ModelStatus } from '@prisma/client';
+import { ArtistStatus, FileType, ModelStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { CompressionService } from '../storage/compression.service';
 import { CreateModelDto } from './dto/create-model.dto';
 import { UpdateModelDto } from './dto/update-model.dto';
 import { UpdateModelStatusDto } from './dto/update-model-status.dto';
+import { GetModelsDto, ModelSortBy } from './dto/get-models.dto';
 
 @Injectable()
 export class ModelsService {
@@ -14,6 +15,92 @@ export class ModelsService {
     private storage: StorageService,
     private compression: CompressionService,
   ) {}
+
+  async findAll(dto: GetModelsDto) {
+    const page = dto.page ?? 1;
+    const limit = dto.limit ?? 20;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.Model3DWhereInput = {
+      // Le catalogue public n'expose que les modèles validés par l'admin.
+      status: ModelStatus.ONLINE,
+      ...(dto.categoryId && { categoryId: dto.categoryId }),
+      ...(dto.minPrice !== undefined || dto.maxPrice !== undefined
+        ? { price: { gte: dto.minPrice, lte: dto.maxPrice } }
+        : {}),
+    };
+
+    // Mapping du paramètre de tri vers les champs Prisma orderBy.
+    const orderBy: Prisma.Model3DOrderByWithRelationInput =
+      dto.sortBy === ModelSortBy.PRICE_ASC ? { price: 'asc' }
+      : dto.sortBy === ModelSortBy.PRICE_DESC ? { price: 'desc' }
+      : dto.sortBy === ModelSortBy.POPULAR ? { downloadCount: 'desc' }
+      : { createdAt: 'desc' }; // NEWEST par défaut
+
+    // count et findMany en parallèle pour limiter la latence de la réponse paginée.
+    const [total, models] = await Promise.all([
+      this.prisma.model3D.count({ where }),
+      this.prisma.model3D.findMany({
+        where,
+        orderBy,
+        skip,
+        take: limit,
+        include: {
+          category: true,
+          artist: { include: { user: { select: { username: true, avatar: true } } } },
+          // On expose uniquement les RENDER_IMAGE dans le catalogue.
+          // Le PREVIEW_3D et SOURCE_3D ne sont servis que sur la page détail.
+          files: { where: { fileType: FileType.RENDER_IMAGE } },
+        },
+      }),
+    ]);
+
+    return {
+      data: models,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  async search(q: string) {
+    // ILIKE : recherche insensible à la casse (PostgreSQL).
+    // Recherche dans le titre ET la description pour maximiser les résultats pertinents.
+    return this.prisma.model3D.findMany({
+      where: {
+        status: ModelStatus.ONLINE,
+        OR: [
+          { title: { contains: q, mode: 'insensitive' } },
+          { description: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      include: {
+        category: true,
+        artist: { include: { user: { select: { username: true, avatar: true } } } },
+        files: { where: { fileType: FileType.RENDER_IMAGE } },
+      },
+      take: 50,
+    });
+  }
+
+  async findOne(id: string) {
+    const model = await this.prisma.model3D.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        artist: { include: { user: { omit: { passwordHash: true } } } },
+        // On expose RENDER_IMAGE et PREVIEW_3D (viewer public) mais pas SOURCE_3D.
+        // L'URL du SOURCE_3D n'est jamais retournée directement — elle passe
+        // par le DownloadsService qui génère une URL signée après vérification de l'achat.
+        files: { where: { fileType: { not: FileType.SOURCE_3D } } },
+        reviews: {
+          include: { user: { select: { username: true, avatar: true } } },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!model) throw new NotFoundException('Model not found');
+    return model;
+  }
 
   async create(
     userId: string,
