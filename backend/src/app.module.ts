@@ -9,6 +9,7 @@ import { ArtistsModule } from './artists/artists.module';
 import { CategoriesModule } from './categories/categories.module';
 import { StorageModule } from './storage/storage.module';
 import { ModelsModule } from './models/models.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ModelsModule } from './models/models.module';
     ArtistsModule,
     CategoriesModule,
     ModelsModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
