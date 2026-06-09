@@ -12,6 +12,7 @@ import { ModelsModule } from './models/models.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { DownloadsModule } from './downloads/downloads.module';
+import { ReviewsModule } from './reviews/reviews.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { DownloadsModule } from './downloads/downloads.module';
     CartModule,
     OrdersModule,
     DownloadsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
