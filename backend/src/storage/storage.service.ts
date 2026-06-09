@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { GetObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
@@ -16,6 +15,9 @@ export class StorageService {
     this.bucket = this.config.getOrThrow<string>('R2_BUCKET_NAME');
     this.publicUrl = this.config.getOrThrow<string>('R2_PUBLIC_URL');
 
+    // Cloudflare R2 expose une API compatible S3.
+    // region: 'auto' est obligatoire pour R2 (pas de région AWS standard).
+    // L'endpoint pointe vers le sous-domaine R2 propre au compte Cloudflare.
     this.s3 = new S3Client({
       region: 'auto',
       endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
@@ -28,6 +30,8 @@ export class StorageService {
 
   async upload(buffer: Buffer, folder: string, originalName: string): Promise<{ key: string; url: string }> {
     const ext = originalName.split('.').pop();
+    // UUID pour le nom de fichier : évite les collisions et les conflits
+    // si deux artistes uploadent un fichier avec le même nom.
     const key = `${folder}/${uuidv4()}.${ext}`;
 
     await this.s3.send(
@@ -42,6 +46,9 @@ export class StorageService {
   }
 
   async getSignedUrl(key: string, expiresIn = 60): Promise<string> {
+    // L'URL signée expire après 60s par défaut : suffisant pour déclencher
+    // un téléchargement, trop court pour être partagé ou mis en cache.
+    // Seul le DownloadsService l'appelle, après vérification de l'achat.
     const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
     return getSignedUrl(this.s3, command, { expiresIn });
   }

@@ -9,6 +9,8 @@ export class ArtistsService {
   constructor(private prisma: PrismaService) {}
 
   async apply(userId: string, dto: CreateArtistDto) {
+    // On bloque uniquement si une demande PENDING ou APPROVED existe déjà.
+    // Un utilisateur REJECTED peut re-soumettre une nouvelle demande.
     const existing = await this.prisma.artist.findFirst({
       where: {
         userId,
@@ -31,6 +33,9 @@ export class ArtistsService {
     if (!artist) throw new NotFoundException('Artist not found');
 
     if (dto.status === ArtistStatus.APPROVED) {
+      // $transaction garantit l'atomicité : les deux mises à jour réussissent
+      // ensemble ou échouent ensemble. Sans transaction, un crash entre les deux
+      // pourrait laisser un Artist APPROVED avec un User au rôle USER.
       return this.prisma.$transaction([
         this.prisma.artist.update({
           where: { id: artistId },

@@ -18,9 +18,13 @@ export class AuthService {
     });
     if (existing) throw new ConflictException('Email or username already taken');
 
+    // 10 salt rounds : bon compromis sécurité/performance (recommandation OWASP).
+    // En dessous de 10, le hash est trop rapide à bruteforcer.
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const user = await this.prisma.user.create({
       data: { email: dto.email, username: dto.username, passwordHash },
+      // omit exclut passwordHash de l'objet retourné par Prisma (feature omitApi).
+      // Evite de l'exposer accidentellement dans la réponse.
       omit: { passwordHash: true },
     });
 
@@ -29,6 +33,9 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+
+    // Même message d'erreur que pour le mauvais mot de passe : ne pas révéler
+    // si l'email existe en base (protection contre l'énumération de comptes).
     if (!user) throw new UnauthorizedException('Invalid credentials');
 
     const valid = await bcrypt.compare(dto.password, user.passwordHash);
@@ -39,6 +46,7 @@ export class AuthService {
   }
 
   private signToken(userId: string, role: string) {
+    // sub (subject) est la convention JWT standard pour l'identifiant du porteur.
     return this.jwt.sign({ sub: userId, role });
   }
 }
