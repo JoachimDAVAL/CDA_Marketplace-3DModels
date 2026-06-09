@@ -11,6 +11,7 @@ import { StorageModule } from './storage/storage.module';
 import { ModelsModule } from './models/models.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
+import { DownloadsModule } from './downloads/downloads.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { OrdersModule } from './orders/orders.module';
     ModelsModule,
     CartModule,
     OrdersModule,
+    DownloadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
