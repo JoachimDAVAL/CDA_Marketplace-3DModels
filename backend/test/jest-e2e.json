@@ -5,5 +5,10 @@
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^uuid$": "<rootDir>/__mocks__/uuid.js",
+    "^property-graph$": "<rootDir>/__mocks__/empty-module.js",
+    "^@gltf-transform/.*": "<rootDir>/__mocks__/empty-module.js"
   }
 }
