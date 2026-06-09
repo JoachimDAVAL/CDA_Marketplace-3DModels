@@ -1,11 +1,17 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { JwtGuard } from './guards/jwt.guard';
+import { CurrentUser } from './decorators/current-user.decorator';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private prisma: PrismaService,
+  ) {}
 
   @Post('register')
   register(@Body() dto: RegisterDto) {
@@ -15,5 +21,14 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('me')
+  async me(@CurrentUser() user: { id: string }) {
+    return this.prisma.user.findUnique({
+      where: { id: user.id },
+      omit: { passwordHash: true },
+    });
   }
 }
