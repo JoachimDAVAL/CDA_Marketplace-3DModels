@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ArtistStatus, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
@@ -52,5 +52,49 @@ export class ArtistsService {
       where: { id: artistId },
       data: { status: dto.status },
     });
+  }
+
+  async getStats(userId: string) {
+    const artist = await this.prisma.artist.findFirst({
+      where: { userId, status: ArtistStatus.APPROVED },
+    });
+    if (!artist) throw new ForbiddenException('Approved artist profile required');
+
+    const models = await this.prisma.model3D.findMany({
+      where: { artistId: artist.id },
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        downloadCount: true,
+        status: true,
+        // Agrégation du nombre de ventes (OrderItems PAID) par modèle.
+        // On compte les OrderItems dont la commande est PAID pour ne pas
+        // inclure les commandes PENDING ou FAILED dans le chiffre d'affaires.
+        orderItems: {
+          where: { order: { status: 'PAID' } },
+          select: { priceAtPurchase: true },
+        },
+      },
+    });
+
+    // Calcul du revenu par modèle à partir des snapshots de prix (priceAtPurchase)
+    // et non du prix actuel — reflète le revenu réellement encaissé.
+    const modelsWithStats = models.map((model) => ({
+      id: model.id,
+      title: model.title,
+      status: model.status,
+      currentPrice: model.price,
+      downloadCount: model.downloadCount,
+      salesCount: model.orderItems.length,
+      revenue: model.orderItems.reduce((sum, item) => sum + Number(item.priceAtPurchase), 0),
+    }));
+
+    return {
+      totalRevenue: modelsWithStats.reduce((sum, m) => sum + m.revenue, 0),
+      totalSales: modelsWithStats.reduce((sum, m) => sum + m.salesCount, 0),
+      totalDownloads: modelsWithStats.reduce((sum, m) => sum + m.downloadCount, 0),
+      models: modelsWithStats,
+    };
   }
 }

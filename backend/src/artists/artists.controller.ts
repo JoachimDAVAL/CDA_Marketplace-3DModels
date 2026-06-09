@@ -1,4 +1,4 @@
-import { Controller, Post, Patch, Body, Param, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Param, UseGuards } from '@nestjs/common';
 import { ArtistsService } from './artists.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistStatusDto } from './dto/update-artist-status.dto';
@@ -15,6 +15,15 @@ export class ArtistsController {
   @Post()
   apply(@CurrentUser() user: { id: string }, @Body() dto: CreateArtistDto) {
     return this.artistsService.apply(user.id, dto);
+  }
+
+  // Route /me/stats placée avant /:id/status pour éviter que NestJS
+  // interprète "me" comme un identifiant d'artiste.
+  @UseGuards(JwtGuard, RolesGuard)
+  @Roles('ARTIST')
+  @Get('me/stats')
+  getStats(@CurrentUser() user: { id: string }) {
+    return this.artistsService.getStats(user.id);
   }
 
   @UseGuards(JwtGuard, RolesGuard)
