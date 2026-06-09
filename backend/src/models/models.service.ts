@@ -1,9 +1,11 @@
 import { Injectable, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
-import { ArtistStatus, FileType } from '@prisma/client';
+import { ArtistStatus, FileType, ModelStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 import { CompressionService } from '../storage/compression.service';
 import { CreateModelDto } from './dto/create-model.dto';
+import { UpdateModelDto } from './dto/update-model.dto';
+import { UpdateModelStatusDto } from './dto/update-model-status.dto';
 
 @Injectable()
 export class ModelsService {
@@ -90,5 +92,38 @@ export class ModelsService {
       },
       include: { files: true, artist: { include: { user: { omit: { passwordHash: true } } } } },
     });
+  }
+
+  async update(id: string, userId: string, dto: UpdateModelDto) {
+    const model = await this.findOneOrFail(id);
+
+    // Vérification que l'artiste connecté est bien le propriétaire du modèle.
+    // On compare userId (du JWT) avec artist.userId pour éviter qu'un artiste
+    // puisse modifier le modèle d'un autre.
+    const artist = await this.prisma.artist.findFirst({ where: { userId } });
+    if (!artist || model.artistId !== artist.id) {
+      throw new ForbiddenException('You do not own this model');
+    }
+
+    // Un modèle ONLINE repassé en PENDING après modification
+    // pour revalidation par l'admin — garantit la cohérence du contenu modéré.
+    return this.prisma.model3D.update({
+      where: { id },
+      data: { ...dto, status: ModelStatus.PENDING },
+    });
+  }
+
+  async updateStatus(id: string, dto: UpdateModelStatusDto) {
+    await this.findOneOrFail(id);
+    return this.prisma.model3D.update({
+      where: { id },
+      data: { status: dto.status },
+    });
+  }
+
+  private async findOneOrFail(id: string) {
+    const model = await this.prisma.model3D.findUnique({ where: { id } });
+    if (!model) throw new NotFoundException('Model not found');
+    return model;
   }
 }
