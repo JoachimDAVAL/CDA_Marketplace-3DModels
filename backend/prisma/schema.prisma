@@ -1,0 +1,217 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- ENUMS ---
+
+enum Role {
+  USER
+  ARTIST
+  ADMIN
+}
+
+enum ArtistStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ModelStatus {
+  PENDING
+  ONLINE
+  REJECTED
+  OFFLINE
+}
+
+enum FileType {
+  SOURCE_3D
+  PREVIEW_3D
+  RENDER_IMAGE
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+// --- MODELS ---
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique @db.VarChar(255)
+  passwordHash String
+  username     String   @unique @db.VarChar(100)
+  avatar       String?
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  artist    Artist?
+  cart      Cart?
+  orders    Order[]
+  reviews   Review[]
+  downloads Download[]
+
+  @@map("user")
+}
+
+model Artist {
+  id           String       @id @default(uuid())
+  firstname    String
+  lastname     String
+  bio          String?      @db.Text
+  siret        String?      @unique @db.VarChar(14)
+  portfolioUrl String?
+  status       ArtistStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  models Model3D[]
+
+  @@map("artist")
+}
+
+model Category {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  slug        String  @unique
+  description String? @db.Text
+
+  models Model3D[]
+
+  @@map("category")
+}
+
+model Model3D {
+  id            String      @id @default(uuid())
+  title         String
+  description   String      @db.Text
+  price         Decimal     @db.Decimal(10, 2)
+  status        ModelStatus @default(PENDING)
+  downloadCount Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  artistId   String
+  artist     Artist   @relation(fields: [artistId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  files      File[]
+  reviews    Review[]
+  orderItems OrderItem[]
+  cartItems  CartItem[]
+
+  @@map("model_3d")
+}
+
+model File {
+  id        String   @id @default(uuid())
+  url       String
+  filename  String
+  fileType  FileType
+  size      Int
+  createdAt DateTime @default(now())
+
+  modelId String
+  model   Model3D @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  downloads Download[]
+
+  @@map("file")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  // CHECK (rating BETWEEN 1 AND 5) -- enforced via @Min(1) @Max(5) on the NestJS DTO
+  rating    Int      @db.SmallInt
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  userId  String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  modelId String
+  model   Model3D @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, modelId])
+  @@map("review")
+}
+
+model Cart {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  items CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id      String   @id @default(uuid())
+  addedAt DateTime @default(now())
+
+  cartId  String
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  modelId String
+  model   Model3D @relation(fields: [modelId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, modelId])
+  @@map("cart_item")
+}
+
+model Order {
+  id          String        @id @default(uuid())
+  totalAmount Decimal       @db.Decimal(10, 2)
+  status      PaymentStatus @default(PENDING)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  items     OrderItem[]
+  downloads Download[]
+
+  @@map("order")
+}
+
+model OrderItem {
+  id              String  @id @default(uuid())
+  priceAtPurchase Decimal @db.Decimal(10, 2)
+
+  orderId String
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  modelId String?
+  model   Model3D? @relation(fields: [modelId], references: [id], onDelete: SetNull)
+
+  @@map("order_item")
+}
+
+model Download {
+  id           String   @id @default(uuid())
+  downloadedAt DateTime @default(now())
+
+  userId  String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileId  String
+  file    File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("download")
+}

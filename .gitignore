@@ -1,0 +1,19 @@
+# dependencies
+node_modules/
+
+# build
+dist/
+
+# env — ne jamais committer .env
+.env
+.env.*
+!.env.example
+
+# prisma generated client
+generated/
+
+# logs
+*.log
+
+# OS
+.DS_Store
