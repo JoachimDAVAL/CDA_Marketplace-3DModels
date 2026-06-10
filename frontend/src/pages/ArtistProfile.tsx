@@ -1,0 +1,1 @@
+﻿export default function ArtistProfile() { return <div>ArtistProfile</div> }

@@ -1,0 +1,1 @@
+﻿export default function BecomeArtist() { return <div>BecomeArtist</div> }
