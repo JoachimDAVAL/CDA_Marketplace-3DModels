@@ -70,6 +70,28 @@ export class OrdersService {
     });
   }
 
+  async findOne(id: string, userId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            model: {
+              select: {
+                id: true,
+                title: true,
+                files: { select: { id: true, filename: true, fileType: true, url: true, size: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.userId !== userId) throw new NotFoundException('Order not found');
+    return order;
+  }
+
   async handleWebhook(payload: Buffer, signature: string) {
     const webhookSecret = this.config.getOrThrow<string>('STRIPE_WEBHOOK_SECRET');
 

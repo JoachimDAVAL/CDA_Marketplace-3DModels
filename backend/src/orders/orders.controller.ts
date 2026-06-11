@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Headers, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Headers, Req, UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -17,6 +17,12 @@ export class OrdersController {
   @Get()
   findAll(@CurrentUser() user: { id: string }) {
     return this.ordersService.findAll(user.id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get(':id')
+  findOne(@Param('id') id: string, @CurrentUser() user: { id: string }) {
+    return this.ordersService.findOne(id, user.id);
   }
 
   // Le webhook Stripe ne passe pas par JwtGuard : Stripe n'envoie pas de token JWT.
