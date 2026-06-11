@@ -30,6 +30,7 @@ export class AuthController {
     return this.prisma.user.findUnique({
       where: { id: user.id },
       omit: { passwordHash: true },
+      include: { artist: true },
     });
   }
 }
