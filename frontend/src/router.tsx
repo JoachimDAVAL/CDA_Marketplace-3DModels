@@ -3,6 +3,7 @@ import MainLayout from './layouts/MainLayout'
 import StudioLayout from './layouts/StudioLayout'
 import AdminLayout from './layouts/AdminLayout'
 import ProtectedRoute from './components/routing/ProtectedRoute'
+import RoleRoute from './components/routing/RoleRoute'
 
 import Catalogue from './pages/Catalogue'
 import Search from './pages/Search'
@@ -57,22 +58,32 @@ const router = createBrowserRouter([
   },
   {
     path: '/studio',
-    element: <StudioLayout />,
+    element: <RoleRoute role="ARTIST" />,
     children: [
-      { index: true, element: <StudioDashboard /> },
-      { path: 'models', element: <StudioModels /> },
-      { path: 'models/upload', element: <StudioUpload /> },
-      { path: 'models/:id/edit', element: <StudioEditModel /> },
-      { path: 'stats', element: <StudioStats /> },
+      {
+        element: <StudioLayout />,
+        children: [
+          { index: true, element: <StudioDashboard /> },
+          { path: 'models', element: <StudioModels /> },
+          { path: 'models/upload', element: <StudioUpload /> },
+          { path: 'models/:id/edit', element: <StudioEditModel /> },
+          { path: 'stats', element: <StudioStats /> },
+        ],
+      },
     ],
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: <RoleRoute role="ADMIN" />,
     children: [
-      { path: 'users', element: <AdminUsers /> },
-      { path: 'models', element: <AdminModels /> },
-      { path: 'categories', element: <AdminCategories /> },
+      {
+        element: <AdminLayout />,
+        children: [
+          { path: 'users', element: <AdminUsers /> },
+          { path: 'models', element: <AdminModels /> },
+          { path: 'categories', element: <AdminCategories /> },
+        ],
+      },
     ],
   },
   { path: '*', element: <NotFound /> },

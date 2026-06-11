@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { Logo, Input, Icon, IconButton, Button } from '../ui'
+import { Logo, Input, Icon, IconButton, Button, Avatar } from '../ui'
+import { useAuth } from '../../contexts/AuthContext'
 
 export function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { user, isAuthenticated, logout } = useAuth()
   const [query, setQuery] = useState('')
 
   function handleSearch(e: React.FormEvent) {
@@ -22,11 +24,7 @@ export function Navbar() {
           <Logo size={22} />
         </Link>
         <nav className="vk-nav__links">
-          <Link
-            to="/"
-            className="vk-nav__link"
-            data-active={isActive('/') ? 'true' : 'false'}
-          >
+          <Link to="/" className="vk-nav__link" data-active={isActive('/') ? 'true' : 'false'}>
             Catalogue
           </Link>
           <span className="vk-nav__link">Créateurs</span>
@@ -44,22 +42,29 @@ export function Navbar() {
           />
         </form>
 
-        <IconButton variant="outline" label="Favoris">
-          <Icon name="heart" size={18} />
+        <IconButton variant="outline" label="Panier">
+          <Icon name="cart" size={18} />
         </IconButton>
 
-        <div className="vk-cart">
-          <IconButton variant="outline" label="Panier">
-            <Icon name="cart" size={18} />
-          </IconButton>
-        </div>
-
-        <Button variant="outline" size="sm" as={Link} to="/login">
-          Connexion
-        </Button>
-        <Button variant="solid" size="sm" caps as={Link} to="/register">
-          S'inscrire
-        </Button>
+        {isAuthenticated && user ? (
+          <>
+            <Link to="/profile" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+              <Avatar src={user.avatar ?? undefined} name={user.username} size={34} />
+            </Link>
+            <IconButton variant="outline" label="Se déconnecter" onClick={logout}>
+              <Icon name="log-out" size={18} />
+            </IconButton>
+          </>
+        ) : (
+          <>
+            <Button variant="outline" size="sm" as={Link} to="/login">
+              Connexion
+            </Button>
+            <Button variant="solid" size="sm" caps as={Link} to="/register">
+              S'inscrire
+            </Button>
+          </>
+        )}
       </div>
     </header>
   )
