@@ -6,6 +6,7 @@ import { Button, Chip, Icon, Rating, Tabs } from '../components/ui'
 import type { TabItem } from '../components/ui'
 import { Viewer3D } from '../components/viewer/Viewer3D'
 import { ReviewsList } from '../components/reviews/ReviewsList'
+import { useCart } from '../contexts/CartContext'
 
 const TABS: TabItem[] = [
   { id: 'overview', label: "Vue d'ensemble" },
@@ -26,6 +27,7 @@ function formatPrice(price: string): string {
 export default function ModelDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { items, addItem, openCart } = useCart()
   const [model, setModel] = useState<Model3D | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -158,9 +160,17 @@ export default function ModelDetail() {
 
         <div className="vk-prod__buybar">
           <span className="vk-prod__price">{formatPrice(model.price)}</span>
-          <Button variant="solid" iconStart={<Icon name="cart" size={16} />} caps>
-            Ajouter au panier
-          </Button>
+          {items.some(i => i.modelId === model.id) ? (
+            <Button variant="outline" iconStart={<Icon name="cart" size={16} />} onClick={openCart}>
+              Dans le panier
+            </Button>
+          ) : (
+            <Button variant="solid" iconStart={<Icon name="cart" size={16} />} caps
+              onClick={() => addItem(model.id).then(openCart)}
+            >
+              Ajouter au panier
+            </Button>
+          )}
         </div>
       </div>
 
