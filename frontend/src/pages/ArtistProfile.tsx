@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import type { ArtistPublicProfile } from '../types'
 import { Avatar, Button, Rating } from '../components/ui'
-import { ModelCard } from '../components/catalogue/ModelCard'
+import { ModelCard } from '../components/models/ModelCard'
 
 export default function ArtistProfile() {
   const { id } = useParams<{ id: string }>()
@@ -24,7 +24,7 @@ export default function ArtistProfile() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-sans)' }}>
-        Chargement…
+        Chargementâ€¦
       </div>
     )
   }
@@ -66,7 +66,7 @@ export default function ArtistProfile() {
         <div className="vk-artist__stats">
           <div className="vk-stat">
             <span className="vk-stat__num">{artist.stats.modelCount}</span>
-            <span className="vk-stat__lbl">Modèles</span>
+            <span className="vk-stat__lbl">ModÃ¨les</span>
           </div>
           <div className="vk-stat">
             <span className="vk-stat__num">{artist.stats.totalDownloads}</span>
@@ -76,7 +76,7 @@ export default function ArtistProfile() {
             <span className="vk-stat__num vk-stat__num--rate">
               {artist.stats.avgRating > 0
                 ? <Rating value={artist.stats.avgRating} size={16} showValue={false} />
-                : '—'
+                : 'â€”'
               }
             </span>
             <span className="vk-stat__lbl">Note</span>
@@ -84,15 +84,15 @@ export default function ArtistProfile() {
         </div>
       </div>
 
-      {/* Grille modèles */}
+      {/* Grille modÃ¨les */}
       {artist.models.length === 0 ? (
         <div className="vk-empty" style={{ marginTop: 40 }}>
-          Cet artiste n'a pas encore publié de modèles.
+          Cet artiste n'a pas encore publiÃ© de modÃ¨les.
         </div>
       ) : (
         <div style={{ marginTop: 32 }}>
           <p className="vk-prod__heading" style={{ marginBottom: 16 }}>
-            {artist.stats.modelCount} modèle{artist.stats.modelCount > 1 ? 's' : ''}
+            {artist.stats.modelCount} modÃ¨le{artist.stats.modelCount > 1 ? 's' : ''}
           </p>
           <div className="vk-grid">
             {artist.models.map(model => (
