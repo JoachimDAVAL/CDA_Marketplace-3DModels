@@ -148,6 +148,16 @@ export interface DownloadResponse {
   downloadsRemaining: number
 }
 
+export interface ArtistPublicProfile extends Artist {
+  user: { username: string; avatar: string | null }
+  models: (Model3D & { files: ModelFile[]; category: Category | null })[]
+  stats: {
+    modelCount: number
+    totalDownloads: number
+    avgRating: number
+  }
+}
+
 export interface ArtistModelStat {
   id: string
   title: string

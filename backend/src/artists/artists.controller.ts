@@ -26,6 +26,11 @@ export class ArtistsController {
     return this.artistsService.getStats(user.id);
   }
 
+  @Get(':id')
+  findPublicProfile(@Param('id') id: string) {
+    return this.artistsService.findPublicProfile(id);
+  }
+
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ADMIN')
   @Patch(':id/status')

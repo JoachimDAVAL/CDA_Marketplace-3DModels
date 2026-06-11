@@ -1,5 +1,5 @@
 import { Injectable, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { ArtistStatus, Role } from '@prisma/client';
+import { ArtistStatus, FileType, ModelStatus, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistStatusDto } from './dto/update-artist-status.dto';
@@ -52,6 +52,43 @@ export class ArtistsService {
       where: { id: artistId },
       data: { status: dto.status },
     });
+  }
+
+  async findPublicProfile(artistId: string) {
+    const artist = await this.prisma.artist.findUnique({
+      where: { id: artistId, status: ArtistStatus.APPROVED },
+      include: {
+        user: { select: { username: true, avatar: true } },
+        models: {
+          where: { status: ModelStatus.ONLINE },
+          include: {
+            files: { where: { fileType: FileType.RENDER_IMAGE } },
+            category: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+    if (!artist) throw new NotFoundException('Artist not found');
+
+    const totalDownloads = artist.models.reduce((s, m) => s + m.downloadCount, 0);
+    const ratings = await this.prisma.review.findMany({
+      where: { modelId: { in: artist.models.map((m) => m.id) } },
+      select: { rating: true },
+    });
+    const avgRating =
+      ratings.length > 0
+        ? Math.round((ratings.reduce((s, r) => s + r.rating, 0) / ratings.length) * 10) / 10
+        : 0;
+
+    return {
+      ...artist,
+      stats: {
+        modelCount: artist.models.length,
+        totalDownloads,
+        avgRating,
+      },
+    };
   }
 
   async getStats(userId: string) {
