@@ -1,17 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import type { Model3D, Category, PaginatedResponse } from '../types'
-import { Button, Chip, Icon, Avatar, SortMenu, Pagination } from '../components/ui'
-import type { SortOption } from '../components/ui'
+import { Button, Icon, Avatar, Pagination } from '../components/ui'
 import { ModelCard } from '../components/models/ModelCard'
-
-const SORT_OPTIONS: SortOption[] = [
-  { value: 'newest',     label: 'Plus récents' },
-  { value: 'popular',    label: 'Plus populaires' },
-  { value: 'price_asc',  label: 'Prix croissant' },
-  { value: 'price_desc', label: 'Prix décroissant' },
-]
+import { FiltersPanel } from '../components/catalogue/FiltersPanel'
 
 function formatPrice(price: string): string {
   const n = parseFloat(price)
@@ -20,47 +13,41 @@ function formatPrice(price: string): string {
 
 export default function Catalogue() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [models, setModels]             = useState<Model3D[]>([])
-  const [categories, setCategories]     = useState<Category[]>([])
-  const [total, setTotal]               = useState(0)
-  const [totalPages, setTotalPages]     = useState(0)
-  const [page, setPage]                 = useState(1)
-  const [categoryId, setCategoryId]     = useState<string | null>(null)
-  const [sortBy, setSortBy]             = useState('newest')
-  const [loading, setLoading]           = useState(true)
+  const categoryId = searchParams.get('categoryId')
+  const sortBy     = searchParams.get('sortBy') ?? 'newest'
+  const page       = Number(searchParams.get('page') ?? '1')
 
-  const fetchModels = useCallback(async (p: number, cat: string | null, sort: string) => {
+  const [models,     setModels]     = useState<Model3D[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [total,      setTotal]      = useState(0)
+  const [totalPages, setTotalPages] = useState(0)
+  const [loading,    setLoading]    = useState(true)
+
+  const fetchModels = useCallback(async () => {
     setLoading(true)
-    const params = new URLSearchParams({ page: String(p), limit: '12', sortBy: sort })
-    if (cat) params.set('categoryId', cat)
+    const params = new URLSearchParams({ page: String(page), limit: '12', sortBy })
+    if (categoryId) params.set('categoryId', categoryId)
     const res = await api.get<PaginatedResponse<Model3D>>(`/models?${params}`)
     setModels(res.data)
     setTotal(res.meta.total)
     setTotalPages(res.meta.totalPages)
     setLoading(false)
-  }, [])
+  }, [page, sortBy, categoryId])
 
   useEffect(() => {
     api.get<Category[]>('/categories').then(setCategories).catch(() => {})
-    fetchModels(1, null, 'newest')
-  }, [fetchModels])
+  }, [])
 
-  const handleCategory = (id: string | null) => {
-    setCategoryId(id)
-    setPage(1)
-    fetchModels(1, id, sortBy)
-  }
-
-  const handleSort = (val: string) => {
-    setSortBy(val)
-    setPage(1)
-    fetchModels(1, categoryId, val)
-  }
+  useEffect(() => { fetchModels() }, [fetchModels])
 
   const handlePage = (p: number) => {
-    setPage(p)
-    fetchModels(p, categoryId, sortBy)
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set('page', String(p))
+      return next
+    })
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -76,7 +63,6 @@ export default function Catalogue() {
   }
   const creators = Array.from(creatorsMap.entries())
 
-  // Hero background
   const heroBg = spotlightThumb?.url
 
   return (
@@ -85,7 +71,9 @@ export default function Catalogue() {
       <div className="vk-hero">
         <div
           className="vk-hero__bg"
-          style={heroBg ? { backgroundImage: `url(${heroBg})` } : { background: 'linear-gradient(135deg, #111 0%, #1a1a2e 100%)' }}
+          style={heroBg
+            ? { backgroundImage: `url(${heroBg})` }
+            : { background: 'linear-gradient(135deg, #111 0%, #1a1a2e 100%)' }}
         />
         <div className="vk-hero__scrim" />
         <div className="vk-hero__inner">
@@ -117,7 +105,9 @@ export default function Catalogue() {
             <div className="vk-spotlight" onClick={() => navigate(`/models/${spotlight.id}`)}>
               <div
                 className="vk-spotlight__media"
-                style={spotlightThumb ? { backgroundImage: `url(${spotlightThumb.url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                style={spotlightThumb
+                  ? { backgroundImage: `url(${spotlightThumb.url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                  : {}}
               >
                 <span className="vk-spotlight__tag">
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 'var(--radius-pill)', background: 'rgba(0,0,0,.5)', backdropFilter: 'blur(6px)', fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-caption)', color: 'var(--text-primary)', fontWeight: 'var(--fw-semibold)', textTransform: 'uppercase', letterSpacing: '.06em' }}>
@@ -185,30 +175,7 @@ export default function Catalogue() {
             <span className="vk-section__meta">{total} modèle{total !== 1 ? 's' : ''}</span>
           </div>
 
-          {/* Filtres */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 28 }}>
-            <Chip
-              selected={categoryId === null}
-              onClick={() => handleCategory(null)}
-            >
-              Tous
-            </Chip>
-            {categories.map(cat => (
-              <Chip
-                key={cat.id}
-                selected={categoryId === cat.id}
-                onClick={() => handleCategory(cat.id)}
-              >
-                {cat.name}
-              </Chip>
-            ))}
-            <div style={{ flex: 1 }} />
-            <SortMenu
-              options={SORT_OPTIONS}
-              value={sortBy}
-              onChange={handleSort}
-            />
-          </div>
+          <FiltersPanel categories={categories} />
 
           {loading ? (
             <div className="vk-empty">Chargement…</div>
