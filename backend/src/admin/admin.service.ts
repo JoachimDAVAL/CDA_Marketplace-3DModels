@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { ModelStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -25,6 +26,31 @@ export class AdminService {
 
     return {
       data: users,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  async findAllModels(page: number, limit: number, status?: string) {
+    const skip = (page - 1) * limit;
+    const where = status ? { status: status as ModelStatus } : {};
+
+    const [total, models] = await Promise.all([
+      this.prisma.model3D.count({ where }),
+      this.prisma.model3D.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          category: { select: { name: true } },
+          artist: { include: { user: { select: { username: true } } } },
+          files: { where: { fileType: 'RENDER_IMAGE' }, take: 1 },
+        },
+      }),
+    ]);
+
+    return {
+      data: models,
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }

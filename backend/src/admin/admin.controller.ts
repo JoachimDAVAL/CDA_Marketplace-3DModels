@@ -19,6 +19,15 @@ export class AdminController {
     return this.adminService.findAllUsers(page, limit);
   }
 
+  @Get('models')
+  findAllModels(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('status') status?: string,
+  ) {
+    return this.adminService.findAllModels(page, limit, status);
+  }
+
   @Delete('users/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteUser(@Param('id') id: string) {
