@@ -5,6 +5,7 @@ import type { Model3D } from '../types'
 import { Button, Chip, Icon, Rating, Tabs } from '../components/ui'
 import type { TabItem } from '../components/ui'
 import { Viewer3D } from '../components/viewer/Viewer3D'
+import { ReviewsList } from '../components/reviews/ReviewsList'
 
 const TABS: TabItem[] = [
   { id: 'overview', label: "Vue d'ensemble" },
@@ -68,8 +69,7 @@ export default function ModelDetail() {
   const totalSize = (model.files ?? []).reduce((sum, f) => sum + f.size, 0)
   const artistName =
     model.artist?.user?.username ??
-    `${model.artist?.firstname ?? ''} ${model.artist?.lastname ?? ''}`.trim() ||
-    'Artiste inconnu'
+    (`${model.artist?.firstname ?? ''} ${model.artist?.lastname ?? ''}`.trim() || 'Artiste inconnu')
   const avgRating =
     model.reviews && model.reviews.length > 0
       ? model.reviews.reduce((s, r) => s + r.rating, 0) / model.reviews.length
@@ -153,9 +153,7 @@ export default function ModelDetail() {
         )}
 
         {activeTab === 'reviews' && (
-          <div style={{ padding: '8px 0', color: 'var(--text-secondary)', fontSize: 'var(--fs-label)', fontFamily: 'var(--font-sans)' }}>
-            Les avis seront disponibles prochainement.
-          </div>
+          <ReviewsList modelId={model.id} />
         )}
 
         <div className="vk-prod__buybar">
