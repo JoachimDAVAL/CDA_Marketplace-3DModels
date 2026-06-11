@@ -5,6 +5,7 @@ import type { Model3D, Category, PaginatedResponse } from '../types'
 import { Button, Icon, Avatar, Pagination } from '../components/ui'
 import { ModelCard } from '../components/models/ModelCard'
 import { FiltersPanel } from '../components/catalogue/FiltersPanel'
+import { useCart } from '../contexts/CartContext'
 
 function formatPrice(price: string): string {
   const n = parseFloat(price)
@@ -14,6 +15,7 @@ function formatPrice(price: string): string {
 export default function Catalogue() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const { addItem, openCart } = useCart()
 
   const categoryId = searchParams.get('categoryId')
   const sortBy     = searchParams.get('sortBy') ?? 'newest'
@@ -185,7 +187,7 @@ export default function Catalogue() {
             <>
               <div className="vk-grid">
                 {models.map(model => (
-                  <ModelCard key={model.id} model={model} />
+                  <ModelCard key={model.id} model={model} onAddToCart={id => addItem(id).then(openCart)} />
                 ))}
               </div>
               <Pagination page={page} pageCount={totalPages} onChange={handlePage} />

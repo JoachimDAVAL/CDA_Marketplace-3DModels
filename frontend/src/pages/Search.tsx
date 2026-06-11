@@ -3,10 +3,12 @@ import { useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import type { Model3D } from '../types'
 import { ModelCard } from '../components/models/ModelCard'
+import { useCart } from '../contexts/CartContext'
 
 export default function Search() {
   const [searchParams] = useSearchParams()
   const q = searchParams.get('q') ?? ''
+  const { addItem, openCart } = useCart()
 
   const [models,  setModels]  = useState<Model3D[]>([])
   const [loading, setLoading] = useState(false)
@@ -43,7 +45,7 @@ export default function Search() {
       ) : (
         <div className="vk-grid">
           {models.map(model => (
-            <ModelCard key={model.id} model={model} />
+            <ModelCard key={model.id} model={model} onAddToCart={id => addItem(id).then(openCart)} />
           ))}
         </div>
       )}
