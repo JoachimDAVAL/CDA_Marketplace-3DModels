@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import type { ArtistStats, ArtistModelStat } from '../../types'
-import { Badge, Button, Icon, IconButton } from '../../components/ui'
+import { Badge, Button, Icon } from '../../components/ui'
 
 const STATUS_LABEL: Record<string, string> = {
   ONLINE: 'En ligne', PENDING: 'En attente', REJECTED: 'Refusé', OFFLINE: 'Hors ligne',
@@ -53,9 +53,15 @@ function ModelRow({ model }: { model: ArtistModelStat }) {
       </span>
 
       <div style={COL.action}>
-        <IconButton as={Link} to={`/studio/models/${model.id}/edit`} variant="outline" title="Modifier">
+        <Link
+          to={`/studio/models/${model.id}/edit`}
+          className="vk-iconbtn vk-iconbtn--outline"
+          style={{ width: 40, height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+          aria-label="Modifier"
+          title="Modifier"
+        >
           <Icon name="pencil" size={15} />
-        </IconButton>
+        </Link>
       </div>
     </div>
   )

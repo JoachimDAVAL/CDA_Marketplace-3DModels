@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../../contexts/CartContext'
 import { useAuth } from '../../contexts/AuthContext'
-import { Icon, IconButton, Button } from '../ui'
+import { Icon, Button } from '../ui'
 import type { CartItem } from '../../types'
 
 function formatPrice(price: string): string {

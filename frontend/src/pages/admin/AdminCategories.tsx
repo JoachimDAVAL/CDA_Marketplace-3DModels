@@ -80,7 +80,7 @@ function CategoryRow({ cat, onUpdate, onDelete }: {
             {cat.slug}
           </span>
           <div className="vk-table__actions">
-            <IconButton variant="outline" title="Modifier" onClick={() => { setErr(null); setEditing(true) }}>
+            <IconButton variant="outline" label="Modifier" onClick={() => { setErr(null); setEditing(true) }}>
               <Icon name="pencil" size={15} />
             </IconButton>
             <button

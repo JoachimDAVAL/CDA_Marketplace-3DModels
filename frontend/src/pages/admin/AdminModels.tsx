@@ -44,7 +44,7 @@ function ModelRow({ model, onStatusChange }: {
 }) {
   const [busy, setBusy] = useState(false)
   const thumb = model.files[0]
-  const artistName = model.artist?.user?.username ?? `${model.artist?.firstname ?? ''} ${model.artist?.lastname ?? ''}`.trim() || '—'
+  const artistName = (model.artist?.user?.username ?? `${model.artist?.firstname ?? ''} ${model.artist?.lastname ?? ''}`.trim()) || '—'
 
   const update = async (status: string) => {
     setBusy(true)
@@ -221,7 +221,7 @@ export default function AdminModels() {
 
       {totalPages > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination page={page} pageCount={totalPages} onChange={setPage} />
         </div>
       )}
     </>

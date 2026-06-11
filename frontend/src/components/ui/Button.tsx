@@ -3,17 +3,25 @@ import type { ComponentPropsWithoutRef, ElementType, ReactNode } from 'react'
 type Variant = 'solid' | 'outline' | 'ghost' | 'danger'
 type Size = 'sm' | 'md' | 'lg'
 
-interface ButtonProps extends ComponentPropsWithoutRef<'button'> {
+type ButtonBaseProps = {
   variant?: Variant
   size?: Size
   caps?: boolean
   block?: boolean
   iconStart?: ReactNode
   iconEnd?: ReactNode
-  as?: ElementType
+  className?: string
+  children?: ReactNode
+  disabled?: boolean
+  type?: 'button' | 'submit' | 'reset'
 }
 
-export function Button({
+export type ButtonProps<T extends ElementType = 'button'> = {
+  as?: T
+} & ButtonBaseProps &
+  Omit<ComponentPropsWithoutRef<T>, keyof ButtonBaseProps | 'as'>
+
+export function Button<T extends ElementType = 'button'>({
   children,
   variant = 'solid',
   size = 'md',
@@ -21,10 +29,11 @@ export function Button({
   block = false,
   iconStart,
   iconEnd,
-  as: Tag = 'button',
+  as,
   className = '',
   ...rest
-}: ButtonProps) {
+}: ButtonProps<T>) {
+  const Tag = (as ?? 'button') as any
   const cls = [
     'vk-btn',
     `vk-btn--${variant}`,

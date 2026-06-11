@@ -149,7 +149,7 @@ export interface DownloadResponse {
 }
 
 export interface ArtistPublicProfile extends Artist {
-  user: { username: string; avatar: string | null }
+  user: { id: string; username: string; avatar: string | null }
   models: (Model3D & { files: ModelFile[]; category: Category | null })[]
   stats: {
     modelCount: number

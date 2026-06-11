@@ -1,6 +1,6 @@
 import type { ComponentPropsWithoutRef } from 'react'
 
-type BadgeTone = 'neutral' | 'solid' | 'success' | 'warning' | 'danger'
+export type BadgeTone = 'neutral' | 'solid' | 'success' | 'warning' | 'danger'
 
 const TONES: Record<BadgeTone, { bg: string; fg: string }> = {
   neutral: { bg: 'var(--surface-chip)',       fg: 'var(--text-secondary)' },

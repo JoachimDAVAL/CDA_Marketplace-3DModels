@@ -19,7 +19,6 @@ import Orders from './pages/Orders'
 import OrderDetail from './pages/OrderDetail'
 import BecomeArtist from './pages/BecomeArtist'
 import NotFound from './pages/NotFound'
-import ViewerTest from './pages/ViewerTest'
 
 import StudioDashboard from './pages/studio/StudioDashboard'
 import StudioModels from './pages/studio/StudioModels'
@@ -39,7 +38,6 @@ const router = createBrowserRouter([
       { path: '/search', element: <Search /> },
       { path: '/models/:id', element: <ModelDetail /> },
       { path: '/artists/:id', element: <ArtistProfile /> },
-      { path: '/viewer-test', element: <ViewerTest /> },
       { path: '/login', element: <Login /> },
       { path: '/register', element: <Register /> },
       {

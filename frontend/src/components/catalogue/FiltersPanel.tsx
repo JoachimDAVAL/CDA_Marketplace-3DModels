@@ -4,10 +4,10 @@ import { Chip, SortMenu } from '../ui'
 import type { SortOption } from '../ui'
 
 export const SORT_OPTIONS: SortOption[] = [
-  { value: 'newest',     label: 'Plus récents' },
-  { value: 'popular',    label: 'Plus populaires' },
-  { value: 'price_asc',  label: 'Prix croissant' },
-  { value: 'price_desc', label: 'Prix décroissant' },
+  { id: 'newest',     label: 'Plus récents' },
+  { id: 'popular',    label: 'Plus populaires' },
+  { id: 'price_asc',  label: 'Prix croissant' },
+  { id: 'price_desc', label: 'Prix décroissant' },
 ]
 
 interface FiltersPanelProps {

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
-import type { ArtistStats, ArtistModelStat } from '../../types'
-import { Badge, Icon, IconButton } from '../../components/ui'
+import type { ArtistStats } from '../../types'
+import { Badge, Icon } from '../../components/ui'
 
 const STATUS_LABEL: Record<string, string> = {
   ONLINE: 'En ligne', PENDING: 'En attente', REJECTED: 'Refusé', OFFLINE: 'Hors ligne',
@@ -33,7 +33,7 @@ const COL = {
   action:  { width: 40,  flexShrink: 0 },
 }
 
-function SortHeader({ label, sortKey, active, onClick, style }: {
+function SortHeader({ label, sortKey: _sortKey, active, onClick, style }: {
   label: string; sortKey: SortKey; active: boolean
   onClick: () => void; style?: React.CSSProperties
 }) {
@@ -180,9 +180,15 @@ export default function StudioStats() {
                 </span>
 
                 <div style={COL.action}>
-                  <IconButton as={Link} to={`/studio/models/${m.id}/edit`} variant="outline" title="Modifier">
+                  <Link
+                    to={`/studio/models/${m.id}/edit`}
+                    className="vk-iconbtn vk-iconbtn--outline"
+                    style={{ width: 40, height: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}
+                    aria-label="Modifier"
+                    title="Modifier"
+                  >
                     <Icon name="pencil" size={15} />
-                  </IconButton>
+                  </Link>
                 </div>
               </div>
             ))}

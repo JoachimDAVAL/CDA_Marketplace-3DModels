@@ -191,7 +191,7 @@ export default function AdminUsers() {
 
       {totalPages > 1 && !search && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination page={page} pageCount={totalPages} onChange={setPage} />
         </div>
       )}
     </>
