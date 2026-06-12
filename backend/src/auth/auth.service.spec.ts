@@ -70,11 +70,11 @@ describe('AuthService', () => {
   // --- login ------------------------------------------------------------------
 
   describe('login', () => {
-    const dto = { email: 'test@example.com', password: 'password123' };
+    const dto = { username: 'testuser', password: 'password123' };
     const dbUser = {
       id: 'uuid-1',
-      email: dto.email,
-      username: 'testuser',
+      email: 'test@example.com',
+      username: dto.username,
       role: 'USER',
       passwordHash: 'hashed-password',
     };
@@ -85,7 +85,7 @@ describe('AuthService', () => {
 
       const result = await service.login(dto);
 
-      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: dto.email } });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { username: dto.username } });
       expect(bcrypt.compare).toHaveBeenCalledWith(dto.password, dbUser.passwordHash);
       expect(result.user).not.toHaveProperty('passwordHash');
       expect(result).toEqual({

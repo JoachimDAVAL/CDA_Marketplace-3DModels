@@ -32,7 +32,7 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.prisma.user.findUnique({ where: { username: dto.username } });
 
     // Même message d'erreur que pour le mauvais mot de passe : ne pas révéler
     // si l'email existe en base (protection contre l'énumération de comptes).

@@ -60,7 +60,7 @@ describe('Models (e2e)', () => {
 
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
-      .send({ email: 'artist@test.com', password: 'password123' });
+      .send({ username: 'artist', password: 'password123' });
     return login.body.access_token;
   }
 
@@ -73,7 +73,7 @@ describe('Models (e2e)', () => {
 
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
-      .send({ email: 'admin@test.com', password: 'password123' });
+      .send({ username: 'admin', password: 'password123' });
     return login.body.access_token;
   }
 
