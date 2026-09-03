@@ -13,6 +13,19 @@ export class DownloadsService {
     private storage: StorageService,
   ) {}
 
+  async getRemainingDownloads(userId: string, fileId: string) {
+    const file = await this.prisma.file.findUnique({ where: { id: fileId } });
+    if (!file) throw new NotFoundException('File not found');
+
+    const orderItem = await this.prisma.orderItem.findFirst({
+      where: { modelId: file.modelId, order: { userId, status: 'PAID' } },
+    });
+    if (!orderItem) throw new ForbiddenException('Purchase required');
+
+    const downloadCount = await this.prisma.download.count({ where: { userId, fileId } });
+    return { downloadsRemaining: MAX_DOWNLOADS_PER_FILE - downloadCount };
+  }
+
   async getSignedDownloadUrl(userId: string, fileId: string) {
     const file = await this.prisma.file.findUnique({
       where: { id: fileId },
