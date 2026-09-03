@@ -69,7 +69,7 @@ export default function ArtistProfile() {
             <span className="vk-stat__lbl">Modèles</span>
           </div>
           <div className="vk-stat">
-            <span className="vk-stat__num">{artist.stats.totalDownloads}</span>
+            <span className="vk-stat__num">{artist.stats.totalSales}</span>
             <span className="vk-stat__lbl">Ventes</span>
           </div>
           <div className="vk-stat">

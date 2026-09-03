@@ -153,7 +153,7 @@ export interface ArtistPublicProfile extends Artist {
   models: (Model3D & { files: ModelFile[]; category: Category | null })[]
   stats: {
     modelCount: number
-    totalDownloads: number
+    totalSales: number
     avgRating: number
   }
 }
