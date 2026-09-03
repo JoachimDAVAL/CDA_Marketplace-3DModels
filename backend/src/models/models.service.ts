@@ -16,7 +16,7 @@ export class ModelsService {
     private compression: CompressionService,
   ) {}
 
-  async findAll(dto: GetModelsDto) {
+  async findAll(dto: GetModelsDto, userId?: string) {
     const page = dto.page ?? 1;
     const limit = dto.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -37,8 +37,15 @@ export class ModelsService {
       : dto.sortBy === ModelSortBy.POPULAR ? { downloadCount: 'desc' }
       : { createdAt: 'desc' }; // NEWEST par défaut
 
-    // count et findMany en parallèle pour limiter la latence de la réponse paginée.
-    const [total, models] = await Promise.all([
+    // count, findMany et owned IDs en parallèle pour limiter la latence.
+    const ownedQuery = userId
+      ? this.prisma.orderItem.findMany({
+          where: { order: { userId, status: 'PAID' }, modelId: { not: null } },
+          select: { modelId: true },
+        })
+      : Promise.resolve([]);
+
+    const [total, models, ownedItems] = await Promise.all([
       this.prisma.model3D.count({ where }),
       this.prisma.model3D.findMany({
         where,
@@ -53,10 +60,13 @@ export class ModelsService {
           files: { where: { fileType: FileType.RENDER_IMAGE } },
         },
       }),
+      ownedQuery,
     ]);
 
+    const ownedIds = new Set(ownedItems.map(oi => oi.modelId));
+
     return {
-      data: models,
+      data: models.map(m => ({ ...m, owned: ownedIds.has(m.id) })),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }

@@ -15,9 +15,10 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class ModelsController {
   constructor(private modelsService: ModelsService) {}
 
+  @UseGuards(OptionalJwtGuard)
   @Get()
-  findAll(@Query() dto: GetModelsDto) {
-    return this.modelsService.findAll(dto);
+  findAll(@Query() dto: GetModelsDto, @CurrentUser() user?: { id: string }) {
+    return this.modelsService.findAll(dto, user?.id);
   }
 
   // Route search avant :id pour éviter que NestJS interprète "search" comme un UUID.
