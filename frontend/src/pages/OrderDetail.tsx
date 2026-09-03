@@ -47,6 +47,12 @@ function DownloadButton({ file }: { file: ModelFile }) {
   const [loading, setLoading] = useState(false)
   const [remaining, setRemaining] = useState<number | null>(null)
 
+  useEffect(() => {
+    api.get<{ downloadsRemaining: number }>(`/downloads/${file.id}/remaining`)
+      .then(res => setRemaining(res.downloadsRemaining))
+      .catch(() => setRemaining(0))
+  }, [file.id])
+
   const handleDownload = async () => {
     setLoading(true)
     try {
@@ -61,6 +67,8 @@ function DownloadButton({ file }: { file: ModelFile }) {
     }
   }
 
+  const exhausted = remaining !== null && remaining <= 0
+
   return (
     <div className="vk-dl">
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -68,8 +76,10 @@ function DownloadButton({ file }: { file: ModelFile }) {
           {file.filename}
         </span>
         {remaining !== null && (
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--fs-caption)', color: 'var(--text-tertiary)' }}>
-            {remaining} téléchargement{remaining !== 1 ? 's' : ''} restant{remaining !== 1 ? 's' : ''}
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--fs-caption)', color: exhausted ? 'var(--color-danger, #e05252)' : 'var(--text-tertiary)' }}>
+            {exhausted
+              ? 'Limite atteinte — 5 téléchargements sur 5 utilisés'
+              : `${remaining} téléchargement${remaining !== 1 ? 's' : ''} restant${remaining !== 1 ? 's' : ''}`}
           </span>
         )}
       </div>
@@ -77,7 +87,7 @@ function DownloadButton({ file }: { file: ModelFile }) {
         variant="outline"
         size="sm"
         iconStart={<Icon name="download" size={14} />}
-        disabled={loading}
+        disabled={loading || exhausted}
         onClick={handleDownload}
       >
         {loading ? 'Préparation…' : 'Télécharger'}
