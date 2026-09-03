@@ -93,14 +93,17 @@ export function ModelCard({ model, avgRating, onAddToCart }: ModelCardProps) {
           >
             Voir
           </Button>
-          <Button
-            variant="solid"
-            size="sm"
-            caps
-            onClick={handleBuy}
-          >
-            {isFree ? 'Obtenir' : 'Acheter'}
-          </Button>
+          {model.owned ? (
+            <Button variant="outline" size="sm" caps disabled
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+            >
+              Possédé
+            </Button>
+          ) : (
+            <Button variant="solid" size="sm" caps onClick={handleBuy}>
+              {isFree ? 'Obtenir' : 'Acheter'}
+            </Button>
+          )}
         </div>
       </div>
     </article>
