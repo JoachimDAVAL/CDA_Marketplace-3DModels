@@ -5,6 +5,7 @@ import AdminLayout from './layouts/AdminLayout'
 import ProtectedRoute from './components/routing/ProtectedRoute'
 import RoleRoute from './components/routing/RoleRoute'
 
+import Home from './pages/Home'
 import Catalogue from './pages/Catalogue'
 import Search from './pages/Search'
 import ModelDetail from './pages/ModelDetail'
@@ -34,7 +35,8 @@ const router = createBrowserRouter([
   {
     element: <MainLayout />,
     children: [
-      { path: '/', element: <Catalogue /> },
+      { path: '/', element: <Home /> },
+      { path: '/catalogue', element: <Catalogue /> },
       { path: '/search', element: <Search /> },
       { path: '/models/:id', element: <ModelDetail /> },
       { path: '/artists/:id', element: <ArtistProfile /> },

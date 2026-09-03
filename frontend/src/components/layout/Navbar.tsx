@@ -24,8 +24,7 @@ export function Navbar() {
         </Link>
         <nav className="vk-nav__links">
           <NavLink
-            to="/"
-            end
+            to="/catalogue"
             className="vk-nav__link"
             style={({ isActive }) => ({ color: isActive ? 'var(--text-primary)' : undefined })}
           >
