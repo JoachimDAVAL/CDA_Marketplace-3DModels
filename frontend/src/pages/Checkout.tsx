@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
@@ -78,12 +78,16 @@ export default function Checkout() {
   const [error, setError] = useState<string | null>(null)
 
   const total = items.reduce((s, i) => s + parseFloat(i.model?.price ?? '0'), 0)
+  const initiated = useRef(false)
 
   useEffect(() => {
+    if (initiated.current) return
+    initiated.current = true
+
     api.post<CheckoutResponse>('/orders')
       .then(res => {
-        if (!res.clientSecret) {
-          setError('Impossible d\'initialiser le paiement.')
+        if (res.clientSecret === null) {
+          navigate('/checkout/success', { replace: true })
         } else {
           setClientSecret(res.clientSecret)
         }
