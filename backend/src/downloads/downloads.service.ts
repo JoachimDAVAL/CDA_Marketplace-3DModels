@@ -54,12 +54,15 @@ export class DownloadsService {
       throw new ForbiddenException(`Download limit reached (${MAX_DOWNLOADS_PER_FILE} per file)`);
     }
 
-    // Enregistrement du téléchargement avant de retourner l'URL —
-    // si l'URL est générée mais le Download non créé (crash), l'accès serait accordé
-    // sans trace. L'ordre inverse garantit la cohérence de l'audit.
-    await this.prisma.download.create({
-      data: { userId, fileId, orderId: orderItem.order.id },
-    });
+    await this.prisma.$transaction([
+      this.prisma.download.create({
+        data: { userId, fileId, orderId: orderItem.order.id },
+      }),
+      this.prisma.model3D.update({
+        where: { id: file.modelId },
+        data: { downloadCount: { increment: 1 } },
+      }),
+    ]);
 
     // URL signée avec expiration courte (60s) : suffisant pour déclencher
     // le téléchargement, trop court pour être redistribuée.
