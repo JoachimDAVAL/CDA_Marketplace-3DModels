@@ -75,6 +75,7 @@ export interface Model3D {
   category?: Category
   files?: ModelFile[]
   reviews?: Review[]
+  owned?: boolean
 }
 
 export interface CartItem {

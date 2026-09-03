@@ -175,7 +175,11 @@ export default function ModelDetail() {
 
         <div className="vk-prod__buybar">
           <span className="vk-prod__price">{formatPrice(model.price)}</span>
-          {items.some(i => i.modelId === model.id) ? (
+          {model.owned ? (
+            <Button variant="outline" iconStart={<Icon name="check" size={16} />} disabled>
+              Possédé
+            </Button>
+          ) : items.some(i => i.modelId === model.id) ? (
             <Button variant="outline" iconStart={<Icon name="cart" size={16} />} onClick={openCart}>
               Dans le panier
             </Button>
