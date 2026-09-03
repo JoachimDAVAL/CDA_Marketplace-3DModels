@@ -6,6 +6,7 @@ import { UpdateModelDto } from './dto/update-model.dto';
 import { UpdateModelStatusDto } from './dto/update-model-status.dto';
 import { GetModelsDto } from './dto/get-models.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -25,9 +26,10 @@ export class ModelsController {
     return this.modelsService.search(q ?? '');
   }
 
+  @UseGuards(OptionalJwtGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.modelsService.findOne(id);
+  findOne(@Param('id') id: string, @CurrentUser() user?: { id: string }) {
+    return this.modelsService.findOne(id, user?.id);
   }
 
   @UseGuards(JwtGuard, RolesGuard)

@@ -81,7 +81,7 @@ export class ModelsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId?: string) {
     const model = await this.prisma.model3D.findUnique({
       where: { id },
       include: {
@@ -99,7 +99,14 @@ export class ModelsService {
     });
 
     if (!model) throw new NotFoundException('Model not found');
-    return model;
+
+    const owned = userId
+      ? !!(await this.prisma.orderItem.findFirst({
+          where: { modelId: id, order: { userId, status: 'PAID' } },
+        }))
+      : false;
+
+    return { ...model, owned };
   }
 
   async create(
