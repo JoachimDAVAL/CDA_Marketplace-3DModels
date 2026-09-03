@@ -96,6 +96,45 @@ export class ArtistsService {
     };
   }
 
+  async findFeatured() {
+    const artists = await this.prisma.artist.findMany({
+      where: { status: ArtistStatus.APPROVED },
+      include: {
+        user: { select: { username: true, avatar: true } },
+        models: {
+          where: { status: ModelStatus.ONLINE },
+          select: { id: true },
+        },
+      },
+    });
+
+    const featured = await Promise.all(
+      artists.map(async (artist) => {
+        const modelIds = artist.models.map((m) => m.id);
+        const ratings = await this.prisma.review.findMany({
+          where: { modelId: { in: modelIds } },
+          select: { rating: true },
+        });
+        const avgRating =
+          ratings.length > 0
+            ? Math.round((ratings.reduce((s, r) => s + r.rating, 0) / ratings.length) * 10) / 10
+            : 0;
+        return {
+          id: artist.id,
+          firstname: artist.firstname,
+          lastname: artist.lastname,
+          user: artist.user,
+          modelCount: modelIds.length,
+          avgRating,
+        };
+      }),
+    );
+
+    return featured
+      .sort((a, b) => b.avgRating - a.avgRating)
+      .slice(0, 4);
+  }
+
   async getStats(userId: string) {
     const artist = await this.prisma.artist.findFirst({
       where: { userId, status: ArtistStatus.APPROVED },
