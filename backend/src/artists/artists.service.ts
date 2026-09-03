@@ -71,11 +71,16 @@ export class ArtistsService {
     });
     if (!artist) throw new NotFoundException('Artist not found');
 
-    const totalDownloads = artist.models.reduce((s, m) => s + m.downloadCount, 0);
-    const ratings = await this.prisma.review.findMany({
-      where: { modelId: { in: artist.models.map((m) => m.id) } },
-      select: { rating: true },
-    });
+    const modelIds = artist.models.map((m) => m.id);
+    const [totalSales, ratings] = await Promise.all([
+      this.prisma.orderItem.count({
+        where: { modelId: { in: modelIds }, order: { status: 'PAID' } },
+      }),
+      this.prisma.review.findMany({
+        where: { modelId: { in: modelIds } },
+        select: { rating: true },
+      }),
+    ]);
     const avgRating =
       ratings.length > 0
         ? Math.round((ratings.reduce((s, r) => s + r.rating, 0) / ratings.length) * 10) / 10
@@ -85,7 +90,7 @@ export class ArtistsService {
       ...artist,
       stats: {
         modelCount: artist.models.length,
-        totalDownloads,
+        totalSales,
         avgRating,
       },
     };
