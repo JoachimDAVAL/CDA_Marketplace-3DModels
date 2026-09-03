@@ -48,6 +48,12 @@ export class OrdersService {
       },
     });
 
+    // Commande gratuite : pas de PaymentIntent, passage direct en PAID.
+    if (totalAmount === 0) {
+      await this.completeOrder(order.id, userId);
+      return { orderId: order.id, clientSecret: null };
+    }
+
     // Stripe attend un montant en centimes (integer).
     // On multiplie par 100 et on arrondit pour éviter les erreurs de virgule flottante.
     const paymentIntent = await this.stripe.paymentIntents.create({
@@ -118,6 +124,12 @@ export class OrdersService {
 
   private async handlePaymentSuccess(paymentIntent: { metadata: Record<string, string> }) {
     const orderId = paymentIntent.metadata.orderId;
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('Order not found');
+    await this.completeOrder(orderId, order.userId!);
+  }
+
+  private async completeOrder(orderId: string, userId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { items: { include: { model: { include: { files: true } } } } },
@@ -139,14 +151,14 @@ export class OrdersService {
         const sourceFiles = item.model.files.filter((f) => f.fileType === 'SOURCE_3D');
         for (const file of sourceFiles) {
           await tx.download.create({
-            data: { userId: order.userId!, fileId: file.id, orderId: order.id },
+            data: { userId, fileId: file.id, orderId },
           });
         }
       }
 
       // Vidage du panier après paiement réussi.
       // Le Cart lui-même est conservé pour les prochains achats.
-      const cart = await tx.cart.findUnique({ where: { userId: order.userId! } });
+      const cart = await tx.cart.findUnique({ where: { userId } });
       if (cart) {
         await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
       }

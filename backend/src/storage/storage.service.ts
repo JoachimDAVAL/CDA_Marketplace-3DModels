@@ -45,10 +45,12 @@ export class StorageService {
     return { key, url: `${this.publicUrl}/${key}` };
   }
 
-  async getSignedUrl(key: string, expiresIn = 60): Promise<string> {
-    // L'URL signée expire après 60s par défaut : suffisant pour déclencher
-    // un téléchargement, trop court pour être partagé ou mis en cache.
-    // Seul le DownloadsService l'appelle, après vérification de l'achat.
+  async getSignedUrl(fileUrl: string, expiresIn = 60): Promise<string> {
+    // L'URL stockée en base est l'URL publique complète ; on extrait la clé S3
+    // en retirant le préfixe publicUrl avant de signer.
+    const key = fileUrl.startsWith(this.publicUrl)
+      ? fileUrl.slice(this.publicUrl.length + 1)
+      : fileUrl;
     const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
     return getSignedUrl(this.s3, command, { expiresIn });
   }
