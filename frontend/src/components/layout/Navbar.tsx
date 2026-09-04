@@ -19,21 +19,14 @@ export function Navbar() {
   return (
     <header className="vk-nav">
       <div className="vk-nav__left">
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <Logo size={22} />
-        </Link>
         <nav className="vk-nav__links">
           <NavLink
             to="/catalogue"
-            className="vk-nav__link"
-            style={({ isActive }) => ({ color: isActive ? 'var(--text-primary)' : undefined })}
+            className={({ isActive }) => 'vk-nav__link' + (isActive ? ' vk-nav__link--active' : '')}
           >
             Catalogue
           </NavLink>
         </nav>
-      </div>
-
-      <div className="vk-nav__right">
         <form className="vk-nav__search" onSubmit={handleSearch}>
           <Input
             icon={<Icon name="search" size={18} />}
@@ -42,17 +35,23 @@ export function Navbar() {
             onChange={e => setQuery(e.target.value)}
           />
         </form>
+      </div>
 
-        <IconButton variant="outline" label="Panier" onClick={openCart} style={{ position: 'relative' }}>
-          <Icon name="cart" size={18} />
+      <div className="vk-nav__center">
+        <Link to="/" style={{ textDecoration: 'none' }}>
+          <Logo size={22} />
+        </Link>
+      </div>
+
+      <div className="vk-nav__right">
+        <div className="vk-cart">
+          <IconButton variant="outline" label="Panier" onClick={openCart}>
+            <Icon name="cart" size={18} />
+          </IconButton>
           {items.length > 0 && (
-            <span style={{
-              position: 'absolute', top: 4, right: 4,
-              width: 8, height: 8, borderRadius: '50%',
-              background: 'var(--accent)', pointerEvents: 'none',
-            }} />
+            <span className="vk-cart__count">{items.length}</span>
           )}
-        </IconButton>
+        </div>
 
         {isAuthenticated && user ? (
           <>
