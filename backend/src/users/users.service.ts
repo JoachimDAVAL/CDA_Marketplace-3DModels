@@ -1,12 +1,16 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
+import { StorageService } from '../storage/storage.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private storage: StorageService,
+  ) {}
 
   async findById(id: string) {
     const user = await this.prisma.user.findUnique({
@@ -21,6 +25,15 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data: dto,
+      omit: { passwordHash: true },
+    });
+  }
+
+  async updateAvatar(id: string, file: Express.Multer.File) {
+    const { url } = await this.storage.upload(file.buffer, 'avatars', file.originalname);
+    return this.prisma.user.update({
+      where: { id },
+      data: { avatar: url },
       omit: { passwordHash: true },
     });
   }

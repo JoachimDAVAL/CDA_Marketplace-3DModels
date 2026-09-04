@@ -1,5 +1,7 @@
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { api } from '../lib/api'
 import { Avatar, Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
 
@@ -9,12 +11,30 @@ const ARTIST_STATUS_LABEL: Record<string, string> = { PENDING: 'En attente', APP
 const ARTIST_STATUS_TONE: Record<string, BadgeTone> = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'danger' }
 
 export default function Profile() {
-  const { user } = useAuth()
+  const { user, refreshUser } = useAuth()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploading, setUploading] = useState(false)
+
   if (!user) return null
 
   const roleLabel = ROLE_LABEL[user.role] ?? user.role
   const roleTone = ROLE_TONE[user.role] ?? 'neutral'
   const artist = user.artist ?? null
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const form = new FormData()
+    form.append('file', file)
+    setUploading(true)
+    try {
+      await api.postForm('/users/me/avatar', form)
+      await refreshUser()
+    } finally {
+      setUploading(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
 
   return (
     <div className="vk-container" style={{ paddingTop: 64, paddingBottom: 80 }}>
@@ -22,7 +42,19 @@ export default function Profile() {
 
         {/* Header */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <Avatar src={user.avatar} name={user.username} size={80} />
+          <div className="vk-avatar-upload" onClick={() => !uploading && fileInputRef.current?.click()}>
+            <Avatar src={user.avatar} name={user.username} size={80} />
+            <div className="vk-avatar-upload__overlay">
+              <Icon name={uploading ? 'loader' : 'camera'} size={20} />
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleAvatarChange}
+            />
+          </div>
           <div className="vk-profile__name">
             <h2>{user.username}</h2>
             <Badge tone={roleTone}>{roleLabel}</Badge>
