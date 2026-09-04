@@ -33,4 +33,18 @@ export class AdminController {
   deleteUser(@Param('id') id: string) {
     return this.adminService.deleteUser(id);
   }
+
+  @Get('reviews')
+  findAllReviews(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    return this.adminService.findAllReviews(page, limit);
+  }
+
+  @Delete('reviews/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteReview(@Param('id') id: string) {
+    return this.adminService.deleteReview(id);
+  }
 }

@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { to: '/admin/users',      label: 'Utilisateurs', icon: 'users'   },
   { to: '/admin/models',     label: 'Modeles',      icon: 'box'     },
   { to: '/admin/categories', label: 'Categories',   icon: 'tag'     },
+  { to: '/admin/reviews',    label: 'Avis',         icon: 'star'    },
 ]
 
 export default function AdminLayout() {

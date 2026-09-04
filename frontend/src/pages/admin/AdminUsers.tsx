@@ -25,7 +25,7 @@ const COL = {
   role:    { width: 100, flexShrink: 0 },
   artist:  { width: 110, flexShrink: 0 },
   since:   { width: 110, flexShrink: 0 },
-  actions: { width: 120, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' as const },
+  actions: { width: 160, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' as const },
 }
 
 function UserRow({

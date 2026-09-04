@@ -4,7 +4,7 @@ import { Avatar, Icon, Logo } from '../components/ui'
 
 const NAV_ITEMS = [
   { to: '/studio',               end: true,  icon: 'bar-chart', label: 'Dashboard'    },
-  { to: '/studio/models',        end: false, icon: 'box',       label: 'Mes modèles'  },
+  { to: '/studio/models',        end: true,  icon: 'box',       label: 'Mes modèles'  },
   { to: '/studio/models/upload', end: true,  icon: 'upload',    label: 'Publier'       },
   { to: '/studio/stats',         end: true,  icon: 'grid',      label: 'Statistiques' },
 ]

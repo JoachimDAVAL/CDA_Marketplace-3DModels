@@ -64,4 +64,30 @@ export class AdminService {
     // Pas de corps de reponse - 204 No Content gere dans le controller.
     return;
   }
+
+  async findAllReviews(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const [total, reviews] = await Promise.all([
+      this.prisma.review.count(),
+      this.prisma.review.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: { select: { id: true, username: true, avatar: true } },
+          model: { select: { id: true, title: true } },
+        },
+      }),
+    ]);
+    return {
+      data: reviews,
+      meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
+    };
+  }
+
+  async deleteReview(id: string) {
+    const review = await this.prisma.review.findUnique({ where: { id } });
+    if (!review) throw new NotFoundException('Review not found');
+    await this.prisma.review.delete({ where: { id } });
+  }
 }

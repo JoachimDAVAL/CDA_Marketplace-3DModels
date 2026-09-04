@@ -30,6 +30,7 @@ import StudioStats from './pages/studio/StudioStats'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminModels from './pages/admin/AdminModels'
 import AdminCategories from './pages/admin/AdminCategories'
+import AdminReviews from './pages/admin/AdminReviews'
 
 const router = createBrowserRouter([
   {
@@ -82,6 +83,7 @@ const router = createBrowserRouter([
           { path: 'users', element: <AdminUsers /> },
           { path: 'models', element: <AdminModels /> },
           { path: 'categories', element: <AdminCategories /> },
+          { path: 'reviews', element: <AdminReviews /> },
         ],
       },
     ],
