@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../lib/api'
 import { Avatar, Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
+import type { Order } from '../types'
 
 const ROLE_LABEL: Record<string, string> = { USER: 'Utilisateur', ARTIST: 'Artiste', ADMIN: 'Administrateur' }
 const ROLE_TONE: Record<string, BadgeTone> = { USER: 'neutral', ARTIST: 'success', ADMIN: 'warning' }
@@ -14,6 +15,11 @@ export default function Profile() {
   const { user, refreshUser } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
+  const [recentOrders, setRecentOrders] = useState<Order[]>([])
+
+  useEffect(() => {
+    api.get<Order[]>('/orders').then(orders => setRecentOrders(orders.slice(0, 3))).catch(() => {})
+  }, [])
 
   if (!user) return null
 
@@ -140,8 +146,26 @@ export default function Profile() {
         {/* My orders shortcut */}
         <div className="vk-profile__section" style={{ marginTop: 24 }}>
           <p className="vk-profile__section-title">Mes achats</p>
+          {recentOrders.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+              {recentOrders.map(order => (
+                <Link key={order.id} to={`/orders/${order.id}`} style={{ textDecoration: 'none' }}>
+                  <div className="vk-order-row">
+                    <span className="vk-order-row__id">#{order.id.replace(/-/g, '').slice(0, 8).toUpperCase()}</span>
+                    <span className="vk-order-row__date">
+                      {new Date(order.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </span>
+                    <span className="vk-order-row__amount">
+                      {parseFloat(order.totalAmount) === 0 ? 'Gratuit' : `${parseFloat(order.totalAmount).toFixed(2)} €`}
+                    </span>
+                    <Icon name="chevron-right" size={16} style={{ color: 'var(--text-tertiary)' }} />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
           <Button variant="outline" iconStart={<Icon name="box" size={16} />} as={Link} to="/orders">
-            Voir mes commandes
+            Voir toutes mes commandes
           </Button>
         </div>
 
