@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Icon } from './Icon'
 
 export interface SortOption {
@@ -14,10 +14,20 @@ interface SortMenuProps {
 
 export function SortMenu({ options, value, onChange }: SortMenuProps) {
   const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
   const current = options.find((o) => o.id === value) ?? options[0]
 
+  useEffect(() => {
+    if (!open) return
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [open])
+
   return (
-    <div className="vk-sort" onMouseLeave={() => setOpen(false)}>
+    <div className="vk-sort" ref={ref}>
       <button className="vk-sort__btn" onClick={() => setOpen((o) => !o)}>
         <span className="vk-sort__label">Trier&nbsp;:</span>
         {current?.label}
