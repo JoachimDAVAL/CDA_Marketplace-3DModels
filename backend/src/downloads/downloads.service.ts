@@ -17,13 +17,13 @@ export class DownloadsService {
     const file = await this.prisma.file.findUnique({ where: { id: fileId } });
     if (!file) throw new NotFoundException('File not found');
 
-    const orderItem = await this.prisma.orderItem.findFirst({
-      where: { modelId: file.modelId, order: { userId, status: 'PAID' } },
-    });
-    if (!orderItem) throw new ForbiddenException('Purchase required');
+    const [orderItemCount, downloadCount] = await Promise.all([
+      this.prisma.orderItem.count({ where: { modelId: file.modelId, order: { userId, status: 'PAID' } } }),
+      this.prisma.download.count({ where: { userId, fileId } }),
+    ]);
+    if (!orderItemCount) throw new ForbiddenException('Purchase required');
 
-    const downloadCount = await this.prisma.download.count({ where: { userId, fileId } });
-    return { downloadsRemaining: MAX_DOWNLOADS_PER_FILE - downloadCount };
+    return { downloadsRemaining: orderItemCount * MAX_DOWNLOADS_PER_FILE - downloadCount };
   }
 
   async getSignedDownloadUrl(userId: string, fileId: string) {
@@ -33,25 +33,21 @@ export class DownloadsService {
     });
     if (!file) throw new NotFoundException('File not found');
 
-    // Vérification qu'un Order PAID de ce user contient le modèle associé au fichier.
-    // On cherche via OrderItem pour relier le fichier → modèle → commande payée.
+    // Récupère le dernier achat pour associer le Download à l'ordre le plus récent.
     const orderItem = await this.prisma.orderItem.findFirst({
-      where: {
-        modelId: file.modelId,
-        order: { userId, status: 'PAID' },
-      },
+      where: { modelId: file.modelId, order: { userId, status: 'PAID' } },
       include: { order: true },
+      orderBy: { order: { createdAt: 'desc' } },
     });
     if (!orderItem) throw new ForbiddenException('Purchase required to download this file');
 
-    // Comptage des téléchargements déjà effectués pour ce user + ce fichier.
-    // La limite s'applique par fichier et non par commande — un user qui achète
-    // deux fois le même modèle (cas modèle gratuit) ne cumule pas les téléchargements.
-    const downloadCount = await this.prisma.download.count({
-      where: { userId, fileId },
-    });
-    if (downloadCount >= MAX_DOWNLOADS_PER_FILE) {
-      throw new ForbiddenException(`Download limit reached (${MAX_DOWNLOADS_PER_FILE} per file)`);
+    const [orderItemCount, downloadCount] = await Promise.all([
+      this.prisma.orderItem.count({ where: { modelId: file.modelId, order: { userId, status: 'PAID' } } }),
+      this.prisma.download.count({ where: { userId, fileId } }),
+    ]);
+    const totalRemaining = orderItemCount * MAX_DOWNLOADS_PER_FILE - downloadCount;
+    if (totalRemaining <= 0) {
+      throw new ForbiddenException(`Download limit reached (${MAX_DOWNLOADS_PER_FILE} per purchase)`);
     }
 
     await this.prisma.$transaction([
@@ -64,15 +60,12 @@ export class DownloadsService {
       }),
     ]);
 
-    // URL signée avec expiration courte (60s) : suffisant pour déclencher
-    // le téléchargement, trop court pour être redistribuée.
-    // L'URL permanente du fichier SOURCE_3D n'est jamais exposée directement.
     const signedUrl = await this.storage.getSignedUrl(file.url, 60);
 
     return {
       url: signedUrl,
       filename: file.filename,
-      downloadsRemaining: MAX_DOWNLOADS_PER_FILE - downloadCount - 1,
+      downloadsRemaining: totalRemaining - 1,
     };
   }
 }

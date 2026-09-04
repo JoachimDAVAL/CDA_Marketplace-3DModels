@@ -63,10 +63,28 @@ export class ModelsService {
       ownedQuery,
     ]);
 
-    const ownedIds = new Set(ownedItems.map(oi => oi.modelId));
+    // Compte les achats par modèle pour calculer les crédits disponibles.
+    const orderCountByModel = new Map<string, number>();
+    for (const item of ownedItems) {
+      if (item.modelId) orderCountByModel.set(item.modelId, (orderCountByModel.get(item.modelId) ?? 0) + 1);
+    }
+
+    // owned = false si tous les crédits sont épuisés (re-achat autorisé dans ce cas).
+    const ownedWithDownloads = new Set<string>();
+    if (userId && orderCountByModel.size > 0) {
+      const sourceFiles = await this.prisma.file.findMany({
+        where: { modelId: { in: [...orderCountByModel.keys()] }, fileType: FileType.SOURCE_3D },
+        select: { modelId: true, _count: { select: { downloads: { where: { userId } } } } },
+      });
+      for (const f of sourceFiles) {
+        if (!f.modelId) continue;
+        const purchased = orderCountByModel.get(f.modelId) ?? 0;
+        if (f._count.downloads < purchased * 5) ownedWithDownloads.add(f.modelId);
+      }
+    }
 
     return {
-      data: models.map(m => ({ ...m, owned: ownedIds.has(m.id) })),
+      data: models.map(m => ({ ...m, owned: ownedWithDownloads.has(m.id) })),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
@@ -110,11 +128,17 @@ export class ModelsService {
 
     if (!model) throw new NotFoundException('Model not found');
 
-    const owned = userId
-      ? !!(await this.prisma.orderItem.findFirst({
-          where: { modelId: id, order: { userId, status: 'PAID' } },
-        }))
-      : false;
+    let owned = false;
+    if (userId) {
+      const [orderItemCount, sourceFile] = await Promise.all([
+        this.prisma.orderItem.count({ where: { modelId: id, order: { userId, status: 'PAID' } } }),
+        this.prisma.file.findFirst({ where: { modelId: id, fileType: FileType.SOURCE_3D } }),
+      ]);
+      if (orderItemCount > 0 && sourceFile) {
+        const downloadCount = await this.prisma.download.count({ where: { userId, fileId: sourceFile.id } });
+        owned = downloadCount < orderItemCount * 5;
+      }
+    }
 
     return { ...model, owned };
   }
