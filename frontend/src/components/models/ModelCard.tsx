@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import type { Model3D, ModelFile, Artist, Category } from '../../types'
 import { Button, Icon, Rating } from '../ui'
@@ -20,18 +19,12 @@ function formatPrice(price: string): string {
 
 export function ModelCard({ model, avgRating, onAddToCart }: ModelCardProps) {
   const navigate = useNavigate()
-  const [fav, setFav] = useState(false)
 
   const thumb = model.files?.find(f => f.fileType === 'RENDER_IMAGE')
   const creatorName = model.artist?.user?.username ?? model.artist?.firstname ?? null
   const isFree = parseFloat(model.price) === 0
 
   const handleCardClick = () => navigate(`/models/${model.id}`)
-
-  const handleFav = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setFav(v => !v)
-  }
 
   const handleBuy = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -55,16 +48,6 @@ export function ModelCard({ model, avgRating, onAddToCart }: ModelCardProps) {
           <Icon name="download" size={11} />
           {model.downloadCount}
         </span>
-
-        {/* Bouton favoris */}
-        <button
-          className="vk-model__fav"
-          data-active={fav ? 'true' : 'false'}
-          onClick={handleFav}
-          aria-label={fav ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-        >
-          <Icon name="heart" size={16} />
-        </button>
       </div>
 
       {/* Body */}
