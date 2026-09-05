@@ -466,7 +466,7 @@
 /* Table */
 .vk-table{ display:flex; flex-direction:column; }
 .vk-table__head{ display:flex; align-items:center; gap:14px; padding:0 14px 12px; font-family:var(--font-sans); font-size:var(--fs-caption); text-transform:uppercase; letter-spacing:.06em; color:var(--text-tertiary); }
-.vk-table__row{ display:flex; align-items:center; gap:14px; padding:14px; border-top:1px solid var(--border-subtle); }
+.vk-table__row{ display:flex; align-items:center; gap:14px; padding:14px; border-top:1px solid var(--border-subtle); transition: background var(--dur-base) var(--ease-standard), opacity var(--dur-base) var(--ease-standard), transform var(--dur-base) var(--ease-standard); }
 .vk-table__row:hover{ background:var(--surface-hover); border-radius:var(--radius-sm); }
 .vk-table__model{ display:flex; align-items:center; gap:12px; min-width:0; }
 .vk-table__thumb{ width:48px; height:48px; border-radius:var(--radius-xs); object-fit:cover; background:#1a1a1a; flex-shrink:0; }
@@ -507,8 +507,6 @@
 .vk-admin__search{ width:300px; max-width:100%; }
 .vk-admin__spacer{ flex:1; }
 
-/* Table rows that animate out on action */
-.vk-table__row{ transition: background var(--dur-base) var(--ease-standard), opacity var(--dur-base) var(--ease-standard), transform var(--dur-base) var(--ease-standard); }
 .vk-table__row--leaving{ opacity:0; transform:translateX(10px); pointer-events:none; }
 
 /* Inline confirm (row turns into "Confirmer ? Oui / Non") */
