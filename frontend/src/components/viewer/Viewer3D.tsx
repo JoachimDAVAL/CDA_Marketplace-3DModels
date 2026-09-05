@@ -1,7 +1,7 @@
 import { Suspense, Component, type ErrorInfo, type ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stage, useGLTF } from '@react-three/drei'
-import { Badge, Icon, IconButton } from '../ui'
+import { Badge, Icon } from '../ui'
 
 // ─── Error boundary ───────────────────────────────────────────────────────────
 
@@ -118,18 +118,6 @@ export function Viewer3D({ url }: Viewer3DProps) {
       <span className="vk-viewer__badge">
         <Badge tone="solid">Aperçu 3D</Badge>
       </span>
-
-      <div className="vk-viewer__controls">
-        <IconButton label="Pivoter">
-          <Icon name="box" size={18} />
-        </IconButton>
-        <IconButton label="Zoom">
-          <Icon name="plus" size={18} />
-        </IconButton>
-        <IconButton label="Plein écran">
-          <Icon name="eye" size={18} />
-        </IconButton>
-      </div>
     </div>
   )
 }

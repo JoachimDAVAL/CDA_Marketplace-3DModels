@@ -104,57 +104,42 @@ export function Navbar() {
       </header>
 
       <div className={'vk-nav__mobile' + (menuOpen ? ' vk-nav__mobile--open' : '')}>
-        <form className="vk-nav__mobile-search" onSubmit={handleSearch}>
-          <Input
-            icon={<Icon name="search" size={18} />}
-            placeholder="Chercher un modèle…"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-          />
-        </form>
-
-        <nav className="vk-nav__mobile-links">
+        {/* Catalogue — centré */}
+        <div className="vk-nav__mobile-main">
           <NavLink
             to="/catalogue"
-            className={({ isActive }) => 'vk-nav__mobile-link' + (isActive ? ' vk-nav__mobile-link--active' : '')}
+            className={({ isActive }) => 'vk-nav__mobile-catalogue' + (isActive ? ' vk-nav__mobile-catalogue--active' : '')}
             onClick={closeMenu}
           >
             Catalogue
           </NavLink>
+        </div>
 
+        {/* Dashboard + auth — en bas */}
+        <div className="vk-nav__mobile-foot">
           {isAuthenticated && user?.role === 'ARTIST' && (
-            <NavLink
-              to="/studio"
-              className={({ isActive }) => 'vk-nav__mobile-link' + (isActive ? ' vk-nav__mobile-link--active' : '')}
-              onClick={closeMenu}
-            >
+            <NavLink to="/studio" className="vk-nav__studio" onClick={closeMenu}>
+              <Icon name="box" size={15} />
               Studio
             </NavLink>
           )}
-
           {isAuthenticated && user?.role === 'ADMIN' && (
-            <NavLink
-              to="/admin/users"
-              className={({ isActive }) => 'vk-nav__mobile-link' + (isActive ? ' vk-nav__mobile-link--active' : '')}
-              onClick={closeMenu}
-            >
+            <NavLink to="/admin/users" className="vk-nav__studio" onClick={closeMenu}>
+              <Icon name="shield" size={15} />
               Admin
             </NavLink>
           )}
-        </nav>
-
-        <div className="vk-nav__mobile-foot">
           {isAuthenticated && user ? (
-            <>
+            <div className="vk-nav__mobile-auth">
               <Link to="/profile" className="vk-nav__mobile-profile" onClick={closeMenu}>
-                <Avatar src={user.avatar} name={user.username} size={38} />
+                <Avatar src={user.avatar} name={user.username} size={36} />
                 <span>{user.username}</span>
               </Link>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 <Icon name="log-out" size={16} />
                 Se déconnecter
               </Button>
-            </>
+            </div>
           ) : (
             <div className="vk-nav__mobile-auth">
               <Button variant="outline" size="sm" as={Link} to="/login" onClick={closeMenu}>Connexion</Button>
