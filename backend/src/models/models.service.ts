@@ -16,7 +16,7 @@ export class ModelsService {
     private compression: CompressionService,
   ) {}
 
-  async findAll(dto: GetModelsDto) {
+  async findAll(dto: GetModelsDto, userId?: string) {
     const page = dto.page ?? 1;
     const limit = dto.limit ?? 20;
     const skip = (page - 1) * limit;
@@ -37,8 +37,15 @@ export class ModelsService {
       : dto.sortBy === ModelSortBy.POPULAR ? { downloadCount: 'desc' }
       : { createdAt: 'desc' }; // NEWEST par défaut
 
-    // count et findMany en parallèle pour limiter la latence de la réponse paginée.
-    const [total, models] = await Promise.all([
+    // count, findMany et owned IDs en parallèle pour limiter la latence.
+    const ownedQuery = userId
+      ? this.prisma.orderItem.findMany({
+          where: { order: { userId, status: 'PAID' }, modelId: { not: null } },
+          select: { modelId: true },
+        })
+      : Promise.resolve([]);
+
+    const [total, models, ownedItems] = await Promise.all([
       this.prisma.model3D.count({ where }),
       this.prisma.model3D.findMany({
         where,
@@ -53,10 +60,31 @@ export class ModelsService {
           files: { where: { fileType: FileType.RENDER_IMAGE } },
         },
       }),
+      ownedQuery,
     ]);
 
+    // Compte les achats par modèle pour calculer les crédits disponibles.
+    const orderCountByModel = new Map<string, number>();
+    for (const item of ownedItems) {
+      if (item.modelId) orderCountByModel.set(item.modelId, (orderCountByModel.get(item.modelId) ?? 0) + 1);
+    }
+
+    // owned = false si tous les crédits sont épuisés (re-achat autorisé dans ce cas).
+    const ownedWithDownloads = new Set<string>();
+    if (userId && orderCountByModel.size > 0) {
+      const sourceFiles = await this.prisma.file.findMany({
+        where: { modelId: { in: [...orderCountByModel.keys()] }, fileType: FileType.SOURCE_3D },
+        select: { modelId: true, _count: { select: { downloads: { where: { userId } } } } },
+      });
+      for (const f of sourceFiles) {
+        if (!f.modelId) continue;
+        const purchased = orderCountByModel.get(f.modelId) ?? 0;
+        if (f._count.downloads < purchased * 5) ownedWithDownloads.add(f.modelId);
+      }
+    }
+
     return {
-      data: models,
+      data: models.map(m => ({ ...m, owned: ownedWithDownloads.has(m.id) })),
       meta: { total, page, limit, totalPages: Math.ceil(total / limit) },
     };
   }
@@ -77,11 +105,11 @@ export class ModelsService {
         artist: { include: { user: { select: { username: true, avatar: true } } } },
         files: { where: { fileType: FileType.RENDER_IMAGE } },
       },
-      take: 50,
+      take: 20,
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, userId?: string) {
     const model = await this.prisma.model3D.findUnique({
       where: { id },
       include: {
@@ -99,7 +127,20 @@ export class ModelsService {
     });
 
     if (!model) throw new NotFoundException('Model not found');
-    return model;
+
+    let owned = false;
+    if (userId) {
+      const [orderItemCount, sourceFile] = await Promise.all([
+        this.prisma.orderItem.count({ where: { modelId: id, order: { userId, status: 'PAID' } } }),
+        this.prisma.file.findFirst({ where: { modelId: id, fileType: FileType.SOURCE_3D } }),
+      ]);
+      if (orderItemCount > 0 && sourceFile) {
+        const downloadCount = await this.prisma.download.count({ where: { userId, fileId: sourceFile.id } });
+        owned = downloadCount < orderItemCount * 5;
+      }
+    }
+
+    return { ...model, owned };
   }
 
   async create(
@@ -125,7 +166,7 @@ export class ModelsService {
 
     // Upload des renders en parallèle pour optimiser le temps de traitement.
     const renderUploads = await Promise.all(
-      files.renders.map((f) => this.storage.upload(f.buffer, 'renders', f.originalname)),
+      files.renders.map((f) => this.storage.upload(f.buffer, 'renders', f.originalname, f.mimetype)),
     );
 
     // Upload du SOURCE_3D (fichier original haute qualité, accès privé post-achat).
@@ -133,6 +174,7 @@ export class ModelsService {
       files.source.buffer,
       'sources',
       files.source.originalname,
+      files.source.mimetype,
     );
 
     // Génération et upload du PREVIEW_3D (GLB compressé Draco, accès public pour le viewer).
@@ -142,6 +184,7 @@ export class ModelsService {
       previewBuffer,
       'previews',
       files.source.originalname,
+      'model/gltf-binary',
     );
 
     // Création du modèle et de tous ses fichiers dans une transaction.

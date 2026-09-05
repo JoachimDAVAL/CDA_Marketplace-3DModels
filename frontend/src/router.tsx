@@ -3,7 +3,9 @@ import MainLayout from './layouts/MainLayout'
 import StudioLayout from './layouts/StudioLayout'
 import AdminLayout from './layouts/AdminLayout'
 import ProtectedRoute from './components/routing/ProtectedRoute'
+import RoleRoute from './components/routing/RoleRoute'
 
+import Home from './pages/Home'
 import Catalogue from './pages/Catalogue'
 import Search from './pages/Search'
 import ModelDetail from './pages/ModelDetail'
@@ -28,12 +30,14 @@ import StudioStats from './pages/studio/StudioStats'
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminModels from './pages/admin/AdminModels'
 import AdminCategories from './pages/admin/AdminCategories'
+import AdminReviews from './pages/admin/AdminReviews'
 
 const router = createBrowserRouter([
   {
     element: <MainLayout />,
     children: [
-      { path: '/', element: <Catalogue /> },
+      { path: '/', element: <Home /> },
+      { path: '/catalogue', element: <Catalogue /> },
       { path: '/search', element: <Search /> },
       { path: '/models/:id', element: <ModelDetail /> },
       { path: '/artists/:id', element: <ArtistProfile /> },
@@ -55,22 +59,33 @@ const router = createBrowserRouter([
   },
   {
     path: '/studio',
-    element: <StudioLayout />,
+    element: <RoleRoute role="ARTIST" />,
     children: [
-      { index: true, element: <StudioDashboard /> },
-      { path: 'models', element: <StudioModels /> },
-      { path: 'models/upload', element: <StudioUpload /> },
-      { path: 'models/:id/edit', element: <StudioEditModel /> },
-      { path: 'stats', element: <StudioStats /> },
+      {
+        element: <StudioLayout />,
+        children: [
+          { index: true, element: <StudioDashboard /> },
+          { path: 'models', element: <StudioModels /> },
+          { path: 'models/upload', element: <StudioUpload /> },
+          { path: 'models/:id/edit', element: <StudioEditModel /> },
+          { path: 'stats', element: <StudioStats /> },
+        ],
+      },
     ],
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: <RoleRoute role="ADMIN" />,
     children: [
-      { path: 'users', element: <AdminUsers /> },
-      { path: 'models', element: <AdminModels /> },
-      { path: 'categories', element: <AdminCategories /> },
+      {
+        element: <AdminLayout />,
+        children: [
+          { path: 'users', element: <AdminUsers /> },
+          { path: 'models', element: <AdminModels /> },
+          { path: 'categories', element: <AdminCategories /> },
+          { path: 'reviews', element: <AdminReviews /> },
+        ],
+      },
     ],
   },
   { path: '*', element: <NotFound /> },

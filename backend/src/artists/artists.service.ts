@@ -1,8 +1,8 @@
 import { Injectable, ConflictException, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { ArtistStatus, Role } from '@prisma/client';
+import { ArtistStatus, FileType, ModelStatus, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
-import { UpdateArtistStatusDto } from './dto/update-artist-status.dto';
+import { UpdateArtistStatusDto, AdminArtistStatus } from './dto/update-artist-status.dto';
 
 @Injectable()
 export class ArtistsService {
@@ -32,7 +32,7 @@ export class ArtistsService {
     });
     if (!artist) throw new NotFoundException('Artist not found');
 
-    if (dto.status === ArtistStatus.APPROVED) {
+    if (dto.status === AdminArtistStatus.APPROVED) {
       // $transaction garantit l'atomicité : les deux mises à jour réussissent
       // ensemble ou échouent ensemble. Sans transaction, un crash entre les deux
       // pourrait laisser un Artist APPROVED avec un User au rôle USER.
@@ -50,8 +50,101 @@ export class ArtistsService {
 
     return this.prisma.artist.update({
       where: { id: artistId },
-      data: { status: dto.status },
+      data: { status: dto.status as unknown as ArtistStatus },
     });
+  }
+
+  async findPublicProfile(artistId: string) {
+    const artist = await this.prisma.artist.findUnique({
+      where: { id: artistId, status: ArtistStatus.APPROVED },
+      include: {
+        user: { select: { username: true, avatar: true } },
+        models: {
+          where: { status: ModelStatus.ONLINE },
+          include: {
+            files: { where: { fileType: FileType.RENDER_IMAGE } },
+            category: true,
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+    if (!artist) throw new NotFoundException('Artist not found');
+
+    const modelIds = artist.models.map((m) => m.id);
+    const [totalSales, ratings] = await Promise.all([
+      this.prisma.orderItem.count({
+        where: { modelId: { in: modelIds }, order: { status: 'PAID' } },
+      }),
+      this.prisma.review.findMany({
+        where: { modelId: { in: modelIds } },
+        select: { rating: true },
+      }),
+    ]);
+    const avgRating =
+      ratings.length > 0
+        ? Math.round((ratings.reduce((s, r) => s + r.rating, 0) / ratings.length) * 10) / 10
+        : 0;
+
+    return {
+      id: artist.id,
+      firstname: artist.firstname,
+      lastname: artist.lastname,
+      bio: artist.bio,
+      portfolioUrl: artist.portfolioUrl,
+      user: artist.user,
+      models: artist.models,
+      stats: {
+        modelCount: artist.models.length,
+        totalSales,
+        avgRating,
+      },
+    };
+  }
+
+  async findFeatured() {
+    const artists = await this.prisma.artist.findMany({
+      where: { status: ArtistStatus.APPROVED },
+      include: {
+        user: { select: { username: true, avatar: true } },
+        models: { where: { status: ModelStatus.ONLINE }, select: { id: true } },
+      },
+    });
+
+    const allModelIds = artists.flatMap((a) => a.models.map((m) => m.id));
+
+    const ratingsRaw = await this.prisma.review.findMany({
+      where: { modelId: { in: allModelIds } },
+      select: { modelId: true, rating: true },
+    });
+
+    const ratingsByModel = new Map<string, number[]>();
+    for (const r of ratingsRaw) {
+      if (!r.modelId) continue;
+      if (!ratingsByModel.has(r.modelId)) ratingsByModel.set(r.modelId, []);
+      ratingsByModel.get(r.modelId)!.push(r.rating);
+    }
+
+    const featured = artists.map((artist) => {
+      const modelIds = artist.models.map((m) => m.id);
+      const allRatings = modelIds.flatMap((id) => ratingsByModel.get(id) ?? []);
+      const avgRating =
+        allRatings.length > 0
+          ? Math.round((allRatings.reduce((s, r) => s + r, 0) / allRatings.length) * 10) / 10
+          : 0;
+      return {
+        id: artist.id,
+        firstname: artist.firstname,
+        lastname: artist.lastname,
+        user: artist.user,
+        modelCount: modelIds.length,
+        avgRating,
+      };
+    });
+
+    return featured
+      .sort((a, b) => b.avgRating - a.avgRating)
+      .slice(0, 4);
   }
 
   async getStats(userId: string) {

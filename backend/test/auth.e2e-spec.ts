@@ -104,7 +104,7 @@ describe('Auth (e2e)', () => {
     it('200 - retourne access_token avec des credentials valides', async () => {
       const res = await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({ email: 'test@example.com', password: 'password123' })
+        .send({ username: 'testuser', password: 'password123' })
         .expect(200);
 
       expect(res.body).toHaveProperty('access_token');
@@ -114,14 +114,14 @@ describe('Auth (e2e)', () => {
     it('401 - si le mot de passe est incorrect', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({ email: 'test@example.com', password: 'wrongpassword' })
+        .send({ username: 'testuser', password: 'wrongpassword' })
         .expect(401);
     });
 
-    it('401 - si l email est inconnu', async () => {
+    it('401 - si le username est inconnu', async () => {
       await request(app.getHttpServer())
         .post('/api/auth/login')
-        .send({ email: 'nobody@example.com', password: 'password123' })
+        .send({ username: 'nobody', password: 'password123' })
         .expect(401);
     });
   });

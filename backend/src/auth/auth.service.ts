@@ -21,18 +21,20 @@ export class AuthService {
     // 10 salt rounds : bon compromis sécurité/performance (recommandation OWASP).
     // En dessous de 10, le hash est trop rapide à bruteforcer.
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: { email: dto.email, username: dto.username, passwordHash },
-      // omit exclut passwordHash de l'objet retourné par Prisma (feature omitApi).
-      // Evite de l'exposer accidentellement dans la réponse.
-      omit: { passwordHash: true },
-    });
-
-    return { user, access_token: this.signToken(user.id, user.role) };
+    try {
+      const user = await this.prisma.user.create({
+        data: { email: dto.email, username: dto.username, passwordHash },
+        select: { id: true, email: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true },
+      });
+      return { user, access_token: this.signToken(user.id, user.role) };
+    } catch (e) {
+      if (e.code === 'P2002') throw new ConflictException('Email or username already taken');
+      throw e;
+    }
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
+    const user = await this.prisma.user.findUnique({ where: { username: dto.username } });
 
     // Même message d'erreur que pour le mauvais mot de passe : ne pas révéler
     // si l'email existe en base (protection contre l'énumération de comptes).
@@ -43,6 +45,22 @@ export class AuthService {
 
     const { passwordHash: _, ...safeUser } = user;
     return { user: safeUser, access_token: this.signToken(user.id, user.role) };
+  }
+
+  async getMe(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        artist: true,
+      },
+    });
   }
 
   private signToken(userId: string, role: string) {

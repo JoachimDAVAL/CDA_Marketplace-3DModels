@@ -14,14 +14,37 @@ export class AdminController {
   findAllUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
   ) {
-    // DefaultValuePipe avant ParseIntPipe pour eviter une erreur si le param est absent.
-    return this.adminService.findAllUsers(page, limit);
+    return this.adminService.findAllUsers(page, limit, search);
+  }
+
+  @Get('models')
+  findAllModels(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('status') status?: string,
+  ) {
+    return this.adminService.findAllModels(page, limit, status);
   }
 
   @Delete('users/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   deleteUser(@Param('id') id: string) {
     return this.adminService.deleteUser(id);
+  }
+
+  @Get('reviews')
+  findAllReviews(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+  ) {
+    return this.adminService.findAllReviews(page, limit);
+  }
+
+  @Delete('reviews/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  deleteReview(@Param('id') id: string) {
+    return this.adminService.deleteReview(id);
   }
 }

@@ -17,13 +17,23 @@ export class ArtistsController {
     return this.artistsService.apply(user.id, dto);
   }
 
-  // Route /me/stats placée avant /:id/status pour éviter que NestJS
-  // interprète "me" comme un identifiant d'artiste.
+  // Routes littérales placées avant /:id pour éviter que NestJS
+  // interprète "me" ou "featured" comme un identifiant d'artiste.
   @UseGuards(JwtGuard, RolesGuard)
   @Roles('ARTIST')
   @Get('me/stats')
   getStats(@CurrentUser() user: { id: string }) {
     return this.artistsService.getStats(user.id);
+  }
+
+  @Get('featured')
+  findFeatured() {
+    return this.artistsService.findFeatured();
+  }
+
+  @Get(':id')
+  findPublicProfile(@Param('id') id: string) {
+    return this.artistsService.findPublicProfile(id);
   }
 
   @UseGuards(JwtGuard, RolesGuard)

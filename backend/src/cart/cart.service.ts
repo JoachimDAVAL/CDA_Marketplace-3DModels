@@ -35,15 +35,22 @@ export class CartService {
       throw new ConflictException('Model is not available for purchase');
     }
 
-    // Vérification que le user ne possède pas déjà ce modèle (Order PAID).
-    // Evite d'acheter deux fois le même modèle.
-    const alreadyOwned = await this.prisma.orderItem.findFirst({
-      where: {
-        modelId: dto.modelId,
-        order: { userId, status: 'PAID' },
-      },
+    // Re-achat autorisé si tous les crédits de téléchargement sont épuisés.
+    // Chaque achat donne 5 téléchargements par fichier source.
+    const orderItemCount = await this.prisma.orderItem.count({
+      where: { modelId: dto.modelId, order: { userId, status: 'PAID' } },
     });
-    if (alreadyOwned) throw new ConflictException('You already own this model');
+    if (orderItemCount > 0) {
+      const sourceFile = await this.prisma.file.findFirst({
+        where: { modelId: dto.modelId, fileType: 'SOURCE_3D' },
+      });
+      if (sourceFile) {
+        const downloadCount = await this.prisma.download.count({ where: { userId, fileId: sourceFile.id } });
+        if (downloadCount < orderItemCount * 5) throw new ConflictException('You already own this model');
+      } else {
+        throw new ConflictException('You already own this model');
+      }
+    }
 
     // upsert sur le Cart : créé s'il n'existe pas encore pour ce user.
     const cart = await this.prisma.cart.upsert({
@@ -59,10 +66,15 @@ export class CartService {
     });
     if (existingItem) throw new ConflictException('Model already in cart');
 
-    return this.prisma.cartItem.create({
-      data: { cartId: cart.id, modelId: dto.modelId },
-      include: { model: true },
-    });
+    try {
+      return await this.prisma.cartItem.create({
+        data: { cartId: cart.id, modelId: dto.modelId },
+        include: { model: true },
+      });
+    } catch (e) {
+      if (e.code === 'P2002') throw new ConflictException('Model already in cart');
+      throw e;
+    }
   }
 
   async removeItem(userId: string, modelId: string) {

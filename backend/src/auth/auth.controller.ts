@@ -4,14 +4,10 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtGuard } from './guards/jwt.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { PrismaService } from '../prisma/prisma.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @Post('register')
   register(@Body() dto: RegisterDto) {
@@ -26,10 +22,7 @@ export class AuthController {
 
   @UseGuards(JwtGuard)
   @Get('me')
-  async me(@CurrentUser() user: { id: string }) {
-    return this.prisma.user.findUnique({
-      where: { id: user.id },
-      omit: { passwordHash: true },
-    });
+  me(@CurrentUser() user: { id: string }) {
+    return this.authService.getMe(user.id);
   }
 }

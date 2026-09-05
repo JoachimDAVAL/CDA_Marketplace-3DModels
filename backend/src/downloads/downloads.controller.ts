@@ -8,6 +8,14 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 export class DownloadsController {
   constructor(private downloadsService: DownloadsService) {}
 
+  @Get(':fileId/remaining')
+  getRemaining(
+    @CurrentUser() user: { id: string },
+    @Param('fileId') fileId: string,
+  ) {
+    return this.downloadsService.getRemainingDownloads(user.id, fileId);
+  }
+
   @Get(':fileId')
   getSignedUrl(
     @CurrentUser() user: { id: string },

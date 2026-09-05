@@ -1,4 +1,4 @@
-import { IsOptional, IsUUID, IsNumber, IsEnum, Min } from 'class-validator';
+import { IsOptional, IsUUID, IsNumber, IsEnum, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum ModelSortBy {
@@ -42,5 +42,6 @@ export class GetModelsDto {
   @Type(() => Number)
   @IsNumber()
   @Min(1)
+  @Max(100)
   limit?: number;
 }

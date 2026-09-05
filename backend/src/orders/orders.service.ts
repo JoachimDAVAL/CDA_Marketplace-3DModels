@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, ModelStatus } from '@prisma/client';
 import Stripe from 'stripe';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -25,6 +25,13 @@ export class OrdersService {
 
     if (!cart?.items.length) throw new BadRequestException('Cart is empty');
 
+    const unavailable = cart.items.filter((item) => item.model.status !== ModelStatus.ONLINE);
+    if (unavailable.length > 0) {
+      throw new BadRequestException(
+        `These models are no longer available: ${unavailable.map((i) => i.model.title).join(', ')}`,
+      );
+    }
+
     // Le total est calculé côté serveur à partir des prix en BDD,
     // jamais depuis le frontend — empêche toute manipulation du montant.
     const totalAmount = cart.items.reduce(
@@ -48,6 +55,12 @@ export class OrdersService {
       },
     });
 
+    // Commande gratuite : pas de PaymentIntent, passage direct en PAID.
+    if (totalAmount === 0) {
+      await this.completeOrder(order.id, userId);
+      return { orderId: order.id, clientSecret: null };
+    }
+
     // Stripe attend un montant en centimes (integer).
     // On multiplie par 100 et on arrondit pour éviter les erreurs de virgule flottante.
     const paymentIntent = await this.stripe.paymentIntents.create({
@@ -68,6 +81,28 @@ export class OrdersService {
       },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async findOne(id: string, userId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id },
+      include: {
+        items: {
+          include: {
+            model: {
+              select: {
+                id: true,
+                title: true,
+                files: { select: { id: true, filename: true, fileType: true, url: true, size: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.userId !== userId) throw new NotFoundException('Order not found');
+    return order;
   }
 
   async handleWebhook(payload: Buffer, signature: string) {
@@ -96,35 +131,29 @@ export class OrdersService {
 
   private async handlePaymentSuccess(paymentIntent: { metadata: Record<string, string> }) {
     const orderId = paymentIntent.metadata.orderId;
+    const order = await this.prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) throw new NotFoundException('Order not found');
+    if (order.status === PaymentStatus.PAID) return;
+    await this.completeOrder(orderId, order.userId!);
+  }
+
+  private async completeOrder(orderId: string, userId: string) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { items: { include: { model: { include: { files: true } } } } },
     });
     if (!order) throw new NotFoundException('Order not found');
 
-    // Transaction : passage PAID + création des Downloads + vidage du panier
-    // en une seule opération atomique. Si l'une échoue, aucune n'est appliquée.
+    // Transaction : passage PAID + vidage du panier en une seule opération atomique.
     await this.prisma.$transaction(async (tx) => {
       await tx.order.update({
         where: { id: orderId },
         data: { status: PaymentStatus.PAID },
       });
 
-      // Création d'un Download pour chaque SOURCE_3D des modèles achetés.
-      // C'est ce qui débloque l'accès au téléchargement côté DownloadsService.
-      for (const item of order.items) {
-        if (!item.model) continue;
-        const sourceFiles = item.model.files.filter((f) => f.fileType === 'SOURCE_3D');
-        for (const file of sourceFiles) {
-          await tx.download.create({
-            data: { userId: order.userId!, fileId: file.id, orderId: order.id },
-          });
-        }
-      }
-
       // Vidage du panier après paiement réussi.
       // Le Cart lui-même est conservé pour les prochains achats.
-      const cart = await tx.cart.findUnique({ where: { userId: order.userId! } });
+      const cart = await tx.cart.findUnique({ where: { userId } });
       if (cart) {
         await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
       }

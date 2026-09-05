@@ -28,7 +28,7 @@ export class StorageService {
     });
   }
 
-  async upload(buffer: Buffer, folder: string, originalName: string): Promise<{ key: string; url: string }> {
+  async upload(buffer: Buffer, folder: string, originalName: string, contentType?: string): Promise<{ key: string; url: string }> {
     const ext = originalName.split('.').pop();
     // UUID pour le nom de fichier : évite les collisions et les conflits
     // si deux artistes uploadent un fichier avec le même nom.
@@ -39,16 +39,23 @@ export class StorageService {
         Bucket: this.bucket,
         Key: key,
         Body: buffer,
+        ContentType: contentType,
       }),
     );
 
     return { key, url: `${this.publicUrl}/${key}` };
   }
 
-  async getSignedUrl(key: string, expiresIn = 60): Promise<string> {
-    // L'URL signée expire après 60s par défaut : suffisant pour déclencher
-    // un téléchargement, trop court pour être partagé ou mis en cache.
-    // Seul le DownloadsService l'appelle, après vérification de l'achat.
+  getPublicUrl(): string {
+    return this.publicUrl;
+  }
+
+  async getSignedUrl(fileUrl: string, expiresIn = 60): Promise<string> {
+    // L'URL stockée en base est l'URL publique complète ; on extrait la clé S3
+    // en retirant le préfixe publicUrl avant de signer.
+    const key = fileUrl.startsWith(this.publicUrl)
+      ? fileUrl.slice(this.publicUrl.length + 1)
+      : fileUrl;
     const command = new GetObjectCommand({ Bucket: this.bucket, Key: key });
     return getSignedUrl(this.s3, command, { expiresIn });
   }
