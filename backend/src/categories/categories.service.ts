@@ -6,7 +6,14 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 // Génère un slug URL-safe depuis un nom : "Character Art" → "character-art".
 // Utilisé comme identifiant lisible dans les URLs de filtrage (/categories/character-art).
 function toSlug(name: string): string {
-  return name.toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  return name
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
 }
 
 @Injectable()
