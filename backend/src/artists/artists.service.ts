@@ -2,7 +2,7 @@ import { Injectable, ConflictException, NotFoundException, ForbiddenException } 
 import { ArtistStatus, FileType, ModelStatus, Role } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
-import { UpdateArtistStatusDto } from './dto/update-artist-status.dto';
+import { UpdateArtistStatusDto, AdminArtistStatus } from './dto/update-artist-status.dto';
 
 @Injectable()
 export class ArtistsService {
@@ -32,7 +32,7 @@ export class ArtistsService {
     });
     if (!artist) throw new NotFoundException('Artist not found');
 
-    if (dto.status === ArtistStatus.APPROVED) {
+    if (dto.status === AdminArtistStatus.APPROVED) {
       // $transaction garantit l'atomicité : les deux mises à jour réussissent
       // ensemble ou échouent ensemble. Sans transaction, un crash entre les deux
       // pourrait laisser un Artist APPROVED avec un User au rôle USER.
@@ -50,7 +50,7 @@ export class ArtistsService {
 
     return this.prisma.artist.update({
       where: { id: artistId },
-      data: { status: dto.status },
+      data: { status: dto.status as unknown as ArtistStatus },
     });
   }
 
