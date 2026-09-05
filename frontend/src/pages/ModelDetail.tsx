@@ -19,10 +19,7 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`
 }
 
-function formatPrice(price: string): string {
-  const n = parseFloat(price)
-  return n === 0 ? 'Gratuit' : `${n.toFixed(2)} €`
-}
+import { formatPrice } from '../lib/format'
 
 export default function ModelDetail() {
   const { id } = useParams<{ id: string }>()

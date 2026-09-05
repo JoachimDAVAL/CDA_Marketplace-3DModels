@@ -3,11 +3,7 @@ import { useCart } from '../../contexts/CartContext'
 import { useAuth } from '../../contexts/AuthContext'
 import { Icon, Button } from '../ui'
 import type { CartItem } from '../../types'
-
-function formatPrice(price: string): string {
-  const n = parseFloat(price)
-  return n === 0 ? 'Gratuit' : `${n.toFixed(2)} €`
-}
+import { formatPrice } from '../../lib/format'
 
 function CartLine({ item, onRemove }: { item: CartItem; onRemove: () => void }) {
   const thumb = item.model?.files?.find(f => f.fileType === 'RENDER_IMAGE')

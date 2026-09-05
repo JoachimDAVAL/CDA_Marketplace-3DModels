@@ -4,6 +4,7 @@ import { api } from '../lib/api'
 import type { Order, ModelFile } from '../types'
 import { Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
+import { shortId } from '../lib/format'
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'En attente',
@@ -39,9 +40,6 @@ interface OrderDetail extends Omit<Order, 'items'> {
   items: OrderDetailItem[]
 }
 
-function shortId(id: string) {
-  return `#${id.replace(/-/g, '').slice(0, 8).toUpperCase()}`
-}
 
 function DownloadButton({ file }: { file: ModelFile }) {
   const [loading, setLoading] = useState(false)

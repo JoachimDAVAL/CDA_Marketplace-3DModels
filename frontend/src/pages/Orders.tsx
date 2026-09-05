@@ -4,6 +4,7 @@ import { api } from '../lib/api'
 import type { Order } from '../types'
 import { Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
+import { shortId } from '../lib/format'
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'En attente',
@@ -18,9 +19,6 @@ const STATUS_TONE: Record<string, BadgeTone> = {
   REFUNDED: 'neutral',
 }
 
-function shortId(id: string) {
-  return `#${id.replace(/-/g, '').slice(0, 8).toUpperCase()}`
-}
 
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([])

@@ -1,6 +1,7 @@
 import { useNavigate, Link } from 'react-router-dom'
 import type { Model3D, ModelFile, Artist, Category } from '../../types'
 import { Button, Icon, Rating } from '../ui'
+import { formatPrice } from '../../lib/format'
 
 interface ModelCardProps {
   model: Model3D & {
@@ -10,11 +11,6 @@ interface ModelCardProps {
   }
   avgRating?: number
   onAddToCart?: (modelId: string) => void
-}
-
-function formatPrice(price: string): string {
-  const n = parseFloat(price)
-  return n === 0 ? 'Gratuit' : `${n.toFixed(2)} €`
 }
 
 export function ModelCard({ model, avgRating, onAddToCart }: ModelCardProps) {
