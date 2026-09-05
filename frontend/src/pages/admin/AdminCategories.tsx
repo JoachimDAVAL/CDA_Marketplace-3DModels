@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { api, ApiError } from '../../lib/api'
 import type { Category } from '../../types'
 import { Icon, IconButton } from '../../components/ui'
@@ -113,13 +113,14 @@ export default function AdminCategories() {
   const [adding, setAdding]         = useState(false)
   const [addErr, setAddErr]         = useState<string | null>(null)
 
-  const fetchCategories = () => {
+  const fetchCategories = useCallback(() => {
+    setLoading(true)
     api.get<Category[]>('/categories')
       .then(setCategories)
       .finally(() => setLoading(false))
-  }
+  }, [])
 
-  useEffect(() => { fetchCategories() }, [])
+  useEffect(() => { fetchCategories() }, [fetchCategories])
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
