@@ -30,7 +30,15 @@ export class UsersService {
   }
 
   async updateAvatar(id: string, file: Express.Multer.File) {
+    const existing = await this.prisma.user.findUnique({ where: { id }, select: { avatar: true } });
+
     const { url } = await this.storage.upload(file.buffer, 'avatars', file.originalname, file.mimetype);
+
+    if (existing?.avatar && existing.avatar.startsWith(this.storage.getPublicUrl())) {
+      const oldKey = existing.avatar.slice(this.storage.getPublicUrl().length + 1);
+      await this.storage.delete(oldKey).catch(() => {});
+    }
+
     return this.prisma.user.update({
       where: { id },
       data: { avatar: url },
