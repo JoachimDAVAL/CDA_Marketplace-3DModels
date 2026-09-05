@@ -12,7 +12,7 @@ function CartLine({ item, onRemove }: { item: CartItem; onRemove: () => void }) 
   return (
     <div className="vk-line">
       {thumb ? (
-        <img src={thumb.url} alt={item.model?.title} className="vk-line__thumb" />
+        <img src={thumb.url} alt={item.model?.title ?? ''} className="vk-line__thumb" />
       ) : (
         <div className="vk-line__thumb" />
       )}

@@ -164,7 +164,7 @@ export default function OrderDetail() {
                   {/* Model row */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 18px' }}>
                     {thumb
-                      ? <img src={thumb.url} alt={item.model?.title} style={{ width: 56, height: 56, borderRadius: 'var(--radius-xs)', objectFit: 'cover', flexShrink: 0 }} />
+                      ? <img src={thumb.url} alt={item.model?.title ?? ''} style={{ width: 56, height: 56, borderRadius: 'var(--radius-xs)', objectFit: 'cover', flexShrink: 0 }} />
                       : <div style={{ width: 56, height: 56, borderRadius: 'var(--radius-xs)', background: 'var(--surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <Icon name="box" size={20} style={{ color: 'var(--text-tertiary)' }} />
                         </div>
