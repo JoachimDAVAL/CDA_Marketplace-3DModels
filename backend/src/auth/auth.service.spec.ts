@@ -54,7 +54,7 @@ describe('AuthService', () => {
       expect(bcrypt.hash).toHaveBeenCalledWith(dto.password, 10);
       expect(prisma.user.create).toHaveBeenCalledWith({
         data: { email: dto.email, username: dto.username, passwordHash: 'hashed-password' },
-        omit: { passwordHash: true },
+        select: { id: true, email: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true },
       });
       expect(result).toEqual({ user: createdUser, access_token: 'signed-token' });
     });

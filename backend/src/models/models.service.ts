@@ -114,7 +114,7 @@ export class ModelsService {
       where: { id },
       include: {
         category: true,
-        artist: { include: { user: { omit: { passwordHash: true } } } },
+        artist: { include: { user: { select: { id: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true } } } },
         // On expose RENDER_IMAGE et PREVIEW_3D (viewer public) mais pas SOURCE_3D.
         // L'URL du SOURCE_3D n'est jamais retournée directement — elle passe
         // par le DownloadsService qui génère une URL signée après vérification de l'achat.
@@ -220,7 +220,7 @@ export class ModelsService {
           ],
         },
       },
-      include: { files: true, artist: { include: { user: { omit: { passwordHash: true } } } } },
+      include: { files: true, artist: { include: { user: { select: { id: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true } } } } },
     });
   }
 
