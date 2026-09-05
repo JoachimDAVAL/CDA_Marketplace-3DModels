@@ -1,5 +1,7 @@
 /* Abstract UI Kit — component + screen styles (vk-*) on top of the design tokens */
 
+@keyframes vk-spin { to { transform: rotate(360deg); } }
+
 /* ---------- Button ---------- */
 .vk-btn{ --_bg:transparent; --_fg:var(--text-primary); --_bd:transparent;
   display:inline-flex; align-items:center; justify-content:center; gap:8px;

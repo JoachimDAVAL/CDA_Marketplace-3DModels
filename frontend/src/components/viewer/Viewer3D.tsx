@@ -65,7 +65,6 @@ function ViewerSpinner() {
         borderRadius: '50%',
         animation: 'vk-spin 0.8s linear infinite',
       }} />
-      <style>{`@keyframes vk-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

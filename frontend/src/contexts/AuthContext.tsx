@@ -42,7 +42,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(me)
   }
 
-  if (!ready) return null
+  if (!ready) return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: 32, height: 32, border: '2px solid var(--border-default)', borderTopColor: 'var(--text-primary)', borderRadius: '50%', animation: 'vk-spin 0.8s linear infinite' }} />
+    </div>
+  )
 
   return (
     <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, refreshUser }}>
