@@ -126,6 +126,7 @@ export class OrdersService {
     const orderId = paymentIntent.metadata.orderId;
     const order = await this.prisma.order.findUnique({ where: { id: orderId } });
     if (!order) throw new NotFoundException('Order not found');
+    if (order.status === PaymentStatus.PAID) return;
     await this.completeOrder(orderId, order.userId!);
   }
 

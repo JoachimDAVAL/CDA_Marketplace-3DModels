@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Headers, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Param, Headers, Req, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -31,6 +31,7 @@ export class OrdersController {
   // car le hash est calculé sur les bytes exacts reçus.
   // req typé en any : RawBodyRequest<Request> cause TS1272 sous NodeNext + emitDecoratorMetadata.
   @Post('webhook')
+  @HttpCode(HttpStatus.OK)
   webhook(@Req() req: any, @Headers('stripe-signature') signature: string) {
     return this.ordersService.handleWebhook(req.rawBody, signature);
   }
