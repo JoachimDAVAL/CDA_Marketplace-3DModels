@@ -62,7 +62,7 @@ function UserRow({
         <Badge tone={ROLE_TONE[user.role] ?? 'neutral'}>{ROLE_LABEL[user.role] ?? user.role}</Badge>
       </div>
 
-      <div style={COL.artist}>
+      <div className="vk-col-hide-mobile" style={COL.artist}>
         {user.artist ? (
           <Badge tone={ARTIST_TONE[user.artist.status] ?? 'neutral'}>
             {ARTIST_LABEL[user.artist.status] ?? user.artist.status}
@@ -72,7 +72,7 @@ function UserRow({
         )}
       </div>
 
-      <span className="vk-table__cell" style={COL.since}>
+      <span className="vk-table__cell vk-col-hide-mobile" style={COL.since}>
         {new Date(user.createdAt).toLocaleDateString('fr-FR')}
       </span>
 
@@ -172,8 +172,8 @@ export default function AdminUsers() {
           <div className="vk-table__head" style={{ padding: '14px 14px 12px' }}>
             <div style={COL.user}>Utilisateur</div>
             <div style={COL.role}>Role</div>
-            <div style={COL.artist}>Artiste</div>
-            <div style={COL.since}>Inscription</div>
+            <div className="vk-col-hide-mobile" style={COL.artist}>Artiste</div>
+            <div className="vk-col-hide-mobile" style={COL.since}>Inscription</div>
             <div style={COL.actions} />
           </div>
           <div className="vk-table">

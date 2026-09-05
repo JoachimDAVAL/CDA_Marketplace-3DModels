@@ -35,15 +35,33 @@ function Stars({ rating }: { rating: number }) {
 function ReviewRow({ review, onDelete }: { review: AdminReview; onDelete: (id: string) => void }) {
   const [confirm, setConfirm] = useState(false)
   const [leaving, setLeaving] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+
+  const stopProp = (e: React.MouseEvent) => e.stopPropagation()
 
   const handleDelete = () => {
     setLeaving(true)
     setTimeout(() => onDelete(review.id), 250)
   }
 
+  const deleteSection = confirm ? (
+    <div style={{ display: 'flex', gap: 4 }}>
+      <button className="vk-confirm__btn vk-confirm__btn--yes" onClick={(e) => { stopProp(e); handleDelete() }}>Oui</button>
+      <button className="vk-confirm__btn vk-confirm__btn--no" onClick={(e) => { stopProp(e); setConfirm(false) }}>Non</button>
+    </div>
+  ) : (
+    <button className="vk-confirm__btn vk-confirm__btn--no" onClick={(e) => { stopProp(e); setConfirm(true) }}>
+      <Icon name="x" size={14} />
+    </button>
+  )
+
   return (
-    <div className={['vk-table__row', leaving ? 'vk-table__row--leaving' : ''].filter(Boolean).join(' ')}>
-      <div style={COL.user}>
+    <div
+      className={['vk-table__row vk-review__row', leaving ? 'vk-table__row--leaving' : ''].filter(Boolean).join(' ')}
+      onClick={() => setExpanded(e => !e)}
+    >
+      {/* Colonnes desktop */}
+      <div className="vk-col-desktop-only" style={COL.user}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
           <Avatar src={review.user.avatar} name={review.user.username} size={30} />
           <span className="vk-table__name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -52,41 +70,55 @@ function ReviewRow({ review, onDelete }: { review: AdminReview; onDelete: (id: s
         </div>
       </div>
 
-      <div style={COL.model}>
+      <div className="vk-col-desktop-only" style={COL.model}>
         <Link
           to={`/models/${review.model.id}`}
           target="_blank"
           className="vk-table__name"
           style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textDecoration: 'none', display: 'block' }}
+          onClick={stopProp}
         >
           {review.model.title}
         </Link>
       </div>
 
-      <div style={COL.rating}>
+      <div className="vk-col-desktop-only" style={COL.rating}>
         <Stars rating={review.rating} />
       </div>
 
-      <div style={COL.comment}>
+      <div className="vk-col-desktop-only" style={COL.comment}>
         <span className="vk-table__sub" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
           {review.comment ?? <span style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>Sans commentaire</span>}
         </span>
       </div>
 
-      <span className="vk-table__cell" style={COL.date}>
+      <span className="vk-table__cell vk-col-desktop-only" style={COL.date}>
         {new Date(review.createdAt).toLocaleDateString('fr-FR')}
       </span>
 
-      <div style={COL.actions}>
-        {confirm ? (
-          <div style={{ display: 'flex', gap: 4 }}>
-            <button className="vk-confirm__btn vk-confirm__btn--yes" onClick={handleDelete}>Oui</button>
-            <button className="vk-confirm__btn vk-confirm__btn--no" onClick={() => setConfirm(false)}>Non</button>
+      <div style={COL.actions} className="vk-table__actions vk-col-desktop-only" onClick={stopProp}>
+        {deleteSection}
+      </div>
+
+      {/* Carte mobile */}
+      <div className="vk-review__mobile-card">
+        <div className="vk-review__mobile-top">
+          <div className="vk-review__mobile-info">
+            <Avatar src={review.user.avatar} name={review.user.username} size={28} />
+            <span className="vk-table__name" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {review.user.username}
+            </span>
           </div>
-        ) : (
-          <button className="vk-confirm__btn vk-confirm__btn--no" onClick={() => setConfirm(true)}>
-            <Icon name="x" size={14} />
-          </button>
+          <Stars rating={review.rating} />
+          <div onClick={stopProp}>{deleteSection}</div>
+        </div>
+        {expanded && (
+          <div className="vk-review__mobile-comment">
+            {review.comment
+              ? review.comment
+              : <span style={{ fontStyle: 'italic', color: 'var(--text-tertiary)' }}>Sans commentaire</span>
+            }
+          </div>
         )}
       </div>
     </div>

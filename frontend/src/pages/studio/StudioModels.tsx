@@ -46,9 +46,9 @@ function ModelRow({ model }: { model: ArtistModelStat }) {
         </Badge>
       </div>
 
-      <span className="vk-table__cell" style={COL.dl}>{model.downloadCount}</span>
-      <span className="vk-table__cell" style={COL.sales}>{model.salesCount}</span>
-      <span className="vk-table__cell vk-table__cell--strong" style={COL.revenue}>
+      <span className="vk-table__cell vk-col-hide-mobile" style={COL.dl}>{model.downloadCount}</span>
+      <span className="vk-table__cell vk-col-hide-mobile" style={COL.sales}>{model.salesCount}</span>
+      <span className="vk-table__cell vk-table__cell--strong vk-col-hide-mobile" style={COL.revenue}>
         {model.revenue > 0 ? `${model.revenue.toFixed(2)} €` : '—'}
       </span>
 
@@ -122,9 +122,9 @@ export default function StudioModels() {
           <div className="vk-table__head" style={{ padding: '14px 14px 12px' }}>
             <div style={COL.model}>Modèle</div>
             <div style={COL.status}>Statut</div>
-            <div style={COL.dl}>DL</div>
-            <div style={COL.sales}>Ventes</div>
-            <div style={COL.revenue}>Revenus</div>
+            <div className="vk-col-hide-mobile" style={COL.dl}>DL</div>
+            <div className="vk-col-hide-mobile" style={COL.sales}>Ventes</div>
+            <div className="vk-col-hide-mobile" style={COL.revenue}>Revenus</div>
             <div style={COL.action} />
           </div>
 

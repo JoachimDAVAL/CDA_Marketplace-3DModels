@@ -333,6 +333,7 @@
 .vk-review__main{ flex:1; display:flex; flex-direction:column; gap:8px; min-width:0; }
 .vk-review__head{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .vk-review__text{ font-family:var(--font-sans); font-size:var(--fs-label); color:var(--text-secondary); line-height:1.55; margin:0; }
+.vk-review__mobile-card{ display:none; }
 .vk-empty{ text-align:center; padding:60px 20px; color:var(--text-tertiary); font-family:var(--font-sans); font-size:var(--fs-label); }
 
 /* Profile — security + become-artist CTA */
@@ -668,4 +669,11 @@
   .vk-product__viewer { min-height: 260px; }
   .vk-dash__body      { padding: 16px; }
   .vk-studio__main    { padding: 24px 16px 48px; }
+  .vk-col-hide-mobile  { display: none; }
+  .vk-col-desktop-only { display: none !important; }
+  .vk-review__row      { flex-wrap: wrap; cursor: pointer; }
+  .vk-review__mobile-card    { display: block !important; flex: 0 0 100%; }
+  .vk-review__mobile-top     { display: flex; align-items: center; gap: 10px; }
+  .vk-review__mobile-info    { flex: 1 1 auto; display: flex; align-items: center; gap: 8px; min-width: 0; overflow: hidden; }
+  .vk-review__mobile-comment { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle); font-family: var(--font-sans); font-size: var(--fs-label); color: var(--text-secondary); line-height: 1.5; }
 }

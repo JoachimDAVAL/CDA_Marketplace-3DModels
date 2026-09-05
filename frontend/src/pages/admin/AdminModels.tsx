@@ -71,7 +71,7 @@ function ModelRow({ model, onStatusChange }: {
         </div>
       </div>
 
-      <span className="vk-table__cell" style={COL.artist}>{artistName}</span>
+      <span className="vk-table__cell vk-col-hide-mobile" style={COL.artist}>{artistName}</span>
 
       <div style={COL.status}>
         <Badge tone={STATUS_TONE[model.status] ?? 'neutral'}>
@@ -79,7 +79,7 @@ function ModelRow({ model, onStatusChange }: {
         </Badge>
       </div>
 
-      <span className="vk-table__cell" style={COL.price}>
+      <span className="vk-table__cell vk-col-hide-mobile" style={COL.price}>
         {parseFloat(model.price) === 0 ? 'Gratuit' : `${parseFloat(model.price).toFixed(2)} EUR`}
       </span>
 
@@ -206,9 +206,9 @@ export default function AdminModels() {
         <div className="vk-panel" style={{ padding: 0, overflow: 'hidden' }}>
           <div className="vk-table__head" style={{ padding: '14px 14px 12px' }}>
             <div style={COL.model}>Modele</div>
-            <div style={COL.artist}>Artiste</div>
+            <div className="vk-col-hide-mobile" style={COL.artist}>Artiste</div>
             <div style={COL.status}>Statut</div>
-            <div style={COL.price}>Prix</div>
+            <div className="vk-col-hide-mobile" style={COL.price}>Prix</div>
             <div style={COL.actions} />
           </div>
           <div className="vk-table">
