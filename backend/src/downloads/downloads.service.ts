@@ -1,4 +1,5 @@
 import { Injectable, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { FileType } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { StorageService } from '../storage/storage.service';
 
@@ -32,6 +33,9 @@ export class DownloadsService {
       include: { model: true },
     });
     if (!file) throw new NotFoundException('File not found');
+    if (file.fileType !== FileType.SOURCE_3D) {
+      throw new ForbiddenException('Only source files can be downloaded via this endpoint');
+    }
 
     // Récupère le dernier achat pour associer le Download à l'ordre le plus récent.
     const orderItem = await this.prisma.orderItem.findFirst({
