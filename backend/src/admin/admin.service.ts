@@ -55,14 +55,10 @@ export class AdminService {
     };
   }
 
-  async deleteUser(id: string) {
+  async deleteUser(id: string): Promise<void> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
-
     await this.prisma.user.delete({ where: { id } });
-
-    // Pas de corps de reponse - 204 No Content gere dans le controller.
-    return;
   }
 
   async findAllReviews(page: number, limit: number) {
@@ -85,7 +81,7 @@ export class AdminService {
     };
   }
 
-  async deleteReview(id: string) {
+  async deleteReview(id: string): Promise<void> {
     const review = await this.prisma.review.findUnique({ where: { id } });
     if (!review) throw new NotFoundException('Review not found');
     await this.prisma.review.delete({ where: { id } });
