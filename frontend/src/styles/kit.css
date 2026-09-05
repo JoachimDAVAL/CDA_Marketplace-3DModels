@@ -578,6 +578,7 @@
   .vk-nav__auth   { display: none; }
   .vk-nav__burger { display: flex; }
   .vk-nav__center { position: absolute; left: 50%; transform: translateX(-50%); }
+  .vk-nav__right  { justify-content: space-between; }
 
   /* Mobile menu panel */
   .vk-nav__mobile {
