@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { Logo, Input, Icon, IconButton, Button, Avatar } from '../ui'
 import { useAuth } from '../../contexts/AuthContext'
 import { useCart } from '../../contexts/CartContext'
@@ -10,6 +10,9 @@ export function Navbar() {
   const { items, openCart } = useCart()
   const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
+  const { pathname } = useLocation()
+
+  useEffect(() => { setMenuOpen(false) }, [pathname])
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault()
