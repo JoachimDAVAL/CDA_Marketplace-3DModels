@@ -114,18 +114,23 @@ export default function StudioEditModel() {
           />
           <div className="vk-field">
             <label className="vk-field__label">Catégorie</label>
-            <select
-              required
-              value={form.categoryId}
-              onChange={set('categoryId')}
-              className="vk-input vk-input--soft"
-              style={{ cursor: 'pointer' }}
-            >
-              <option value="">Choisir une catégorie</option>
-              {categories.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
+            <div style={{ position: 'relative' }}>
+              <select
+                required
+                value={form.categoryId}
+                onChange={set('categoryId')}
+                className="vk-input vk-input--soft"
+                style={{ cursor: 'pointer', appearance: 'none', paddingRight: 40 }}
+              >
+                <option value="">Choisir une catégorie</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+              <div style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-tertiary)', display: 'flex' }}>
+                <Icon name="chevron-down" size={16} />
+              </div>
+            </div>
           </div>
         </div>
 
