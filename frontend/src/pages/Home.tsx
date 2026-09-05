@@ -22,14 +22,16 @@ export default function Home() {
   const { addItem, openCart } = useCart()
   const [recentModels, setRecentModels] = useState<Model3D[]>([])
   const [featuredArtists, setFeaturedArtists] = useState<FeaturedArtist[]>([])
+  const [modelsError, setModelsError] = useState(false)
+  const [artistsError, setArtistsError] = useState(false)
 
   useEffect(() => {
     api.get<PaginatedResponse<Model3D>>('/models?limit=6&sortBy=newest')
       .then(res => setRecentModels(res.data))
-      .catch(() => {})
+      .catch(() => setModelsError(true))
     api.get<FeaturedArtist[]>('/artists/featured')
       .then(setFeaturedArtists)
-      .catch(() => {})
+      .catch(() => setArtistsError(true))
   }, [])
 
   return (
@@ -59,11 +61,16 @@ export default function Home() {
       <div className="vk-container">
 
         {/* Artistes en vedette */}
-        {featuredArtists.length > 0 && (
+        {(featuredArtists.length > 0 || artistsError) && (
           <section className="vk-section vk-section--tight">
             <div className="vk-section__head">
               <h2 className="vk-section__title">Artistes en vedette</h2>
             </div>
+            {artistsError ? (
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-label)', color: 'var(--text-tertiary)' }}>
+                Impossible de charger les artistes.
+              </p>
+            ) : (
             <div className="vk-creators">
               {featuredArtists.map(artist => {
                 const name = artist.user.username ?? `${artist.firstname} ${artist.lastname}`.trim()
@@ -82,11 +89,12 @@ export default function Home() {
                 )
               })}
             </div>
+            )}
           </section>
         )}
 
         {/* Derniers modèles */}
-        {recentModels.length > 0 && (
+        {(recentModels.length > 0 || modelsError) && (
           <section className="vk-section">
             <div className="vk-section__head">
               <h2 className="vk-section__title">Derniers modèles</h2>
@@ -98,11 +106,17 @@ export default function Home() {
                 Voir tout <Icon name="chevron-right" size={16} />
               </Link>
             </div>
+            {modelsError ? (
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-label)', color: 'var(--text-tertiary)' }}>
+                Impossible de charger les modèles.
+              </p>
+            ) : (
             <div className="vk-grid">
               {recentModels.map(model => (
                 <ModelCard key={model.id} model={model} onAddToCart={id => addItem(id).then(openCart)} />
               ))}
             </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
               <Button variant="outline" size="lg" as={Link} to="/catalogue" iconEnd={<Icon name="arrow-right" size={16} />}>
                 Voir tout le catalogue

@@ -67,14 +67,6 @@ export default function Login() {
             required
           />
 
-          <div className="vk-auth__row">
-            <label className="vk-auth__check">
-              <input type="checkbox" />
-              Se souvenir de moi
-            </label>
-            <span className="vk-auth__link">Mot de passe oublié ?</span>
-          </div>
-
           {error && (
             <p style={{ margin: 0, color: 'var(--danger)', fontSize: 'var(--fs-caption)', fontFamily: 'var(--font-sans)', textAlign: 'center' }}>
               {error}
