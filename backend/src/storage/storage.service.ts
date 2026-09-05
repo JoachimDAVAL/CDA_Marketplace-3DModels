@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class StorageService {
@@ -32,7 +32,7 @@ export class StorageService {
     const ext = originalName.split('.').pop();
     // UUID pour le nom de fichier : évite les collisions et les conflits
     // si deux artistes uploadent un fichier avec le même nom.
-    const key = `${folder}/${uuidv4()}.${ext}`;
+    const key = `${folder}/${randomUUID()}.${ext}`;
 
     await this.s3.send(
       new PutObjectCommand({
