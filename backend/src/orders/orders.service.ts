@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { PaymentStatus } from '@prisma/client';
+import { PaymentStatus, ModelStatus } from '@prisma/client';
 import Stripe from 'stripe';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -24,6 +24,13 @@ export class OrdersService {
     });
 
     if (!cart?.items.length) throw new BadRequestException('Cart is empty');
+
+    const unavailable = cart.items.filter((item) => item.model.status !== ModelStatus.ONLINE);
+    if (unavailable.length > 0) {
+      throw new BadRequestException(
+        `These models are no longer available: ${unavailable.map((i) => i.model.title).join(', ')}`,
+      );
+    }
 
     // Le total est calculé côté serveur à partir des prix en BDD,
     // jamais depuis le frontend — empêche toute manipulation du montant.
