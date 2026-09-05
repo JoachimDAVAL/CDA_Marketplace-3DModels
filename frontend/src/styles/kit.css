@@ -405,6 +405,12 @@
   .vk-spotlight{ grid-template-columns:1fr; }
   .vk-spotlight__media{ min-height:300px; }
   .vk-creators{ grid-template-columns:1fr; }
+  .vk-studio{ grid-template-columns:1fr; }
+  .vk-studio__side{ position:static; height:auto; }
+  .vk-studio__stats{ grid-template-columns:repeat(2, 1fr); }
+  .vk-studio__split{ grid-template-columns:1fr; }
+  .vk-upload-grid{ grid-template-columns:1fr; }
+  .vk-admin__search{ width:100%; }
 }
 
 /* ============================================================
@@ -487,14 +493,6 @@
 .vk-upload-drop__s{ font-family:var(--font-sans); font-size:var(--fs-caption); color:var(--text-tertiary); }
 .vk-uploadform__actions{ display:flex; align-items:center; gap:12px; padding-top:8px; }
 
-@media (max-width:1100px){
-  .vk-studio{ grid-template-columns:1fr; }
-  .vk-studio__side{ position:static; height:auto; }
-  .vk-studio__stats{ grid-template-columns:repeat(2, 1fr); }
-  .vk-studio__split{ grid-template-columns:1fr; }
-  .vk-upload-grid{ grid-template-columns:1fr; }
-}
-
 /* ============================================================
    Panel admin (/admin) — reuses the studio shell + vk-table
    ============================================================ */
@@ -550,10 +548,6 @@
 .vk-cat-input:focus{ outline:none; box-shadow:inset 0 0 0 1px var(--accent), var(--focus-ring); }
 .vk-cat-add{ display:flex; align-items:center; gap:12px; padding:14px; border-radius:var(--radius-md); background:var(--surface-card); box-shadow:inset 0 0 0 1px var(--border-default); margin-bottom:6px; }
 .vk-cat-add__field{ flex:1; }
-
-@media (max-width:1100px){
-  .vk-admin__search{ width:100%; }
-}
 
 /* ============================================================
    Mobile nav — defaults desktop pour les nouvelles classes
