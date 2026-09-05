@@ -15,8 +15,10 @@ describe('DownloadsService', () => {
   let service: DownloadsService;
   let prisma: {
     file: { findUnique: jest.Mock };
-    orderItem: { findFirst: jest.Mock };
+    orderItem: { findFirst: jest.Mock; count: jest.Mock };
     download: { count: jest.Mock; create: jest.Mock };
+    model3D: { update: jest.Mock };
+    $transaction: jest.Mock;
   };
   let storage: { getSignedUrl: jest.Mock };
 
@@ -37,8 +39,10 @@ describe('DownloadsService', () => {
   beforeEach(async () => {
     prisma = {
       file: { findUnique: jest.fn() },
-      orderItem: { findFirst: jest.fn() },
+      orderItem: { findFirst: jest.fn(), count: jest.fn() },
       download: { count: jest.fn(), create: jest.fn() },
+      model3D: { update: jest.fn().mockResolvedValue({}) },
+      $transaction: jest.fn().mockImplementation((ops: Promise<unknown>[]) => Promise.all(ops)),
     };
     storage = { getSignedUrl: jest.fn() };
 
@@ -71,6 +75,7 @@ describe('DownloadsService', () => {
   it('leve ForbiddenException si la limite de 5 telechargements est atteinte', async () => {
     prisma.file.findUnique.mockResolvedValue(file);
     prisma.orderItem.findFirst.mockResolvedValue(orderItem);
+    prisma.orderItem.count.mockResolvedValue(1);
     prisma.download.count.mockResolvedValue(5);
 
     await expect(service.getSignedDownloadUrl(userId, fileId)).rejects.toThrow(ForbiddenException);
@@ -81,6 +86,7 @@ describe('DownloadsService', () => {
   it('enregistre le Download AVANT de generer l URL signee', async () => {
     prisma.file.findUnique.mockResolvedValue(file);
     prisma.orderItem.findFirst.mockResolvedValue(orderItem);
+    prisma.orderItem.count.mockResolvedValue(1);
     prisma.download.count.mockResolvedValue(0);
 
     let downloadCreatedFirst = false;
@@ -100,6 +106,7 @@ describe('DownloadsService', () => {
     beforeEach(() => {
       prisma.file.findUnique.mockResolvedValue(file);
       prisma.orderItem.findFirst.mockResolvedValue(orderItem);
+      prisma.orderItem.count.mockResolvedValue(1);
       prisma.download.create.mockResolvedValue({});
       storage.getSignedUrl.mockResolvedValue('https://signed-url');
     });
@@ -127,6 +134,7 @@ describe('DownloadsService', () => {
 
       const result = await service.getSignedDownloadUrl(userId, fileId);
 
+      // 1 achat x 5 max = 5 ; 5 - 3 deja effectues = 2 restants avant ; -1 = 1 apres
       expect(result).toEqual({
         url: 'https://signed-url',
         filename: file.filename,
@@ -139,6 +147,7 @@ describe('DownloadsService', () => {
 
       const result = await service.getSignedDownloadUrl(userId, fileId);
 
+      // 5 - 4 = 1 restant avant ce telechargement ; -1 = 0 apres — 5eme autorise, bouton desactive
       expect(result.downloadsRemaining).toBe(0);
     });
   });

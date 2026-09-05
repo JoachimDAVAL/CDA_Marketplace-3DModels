@@ -136,25 +136,12 @@ export class OrdersService {
     });
     if (!order) throw new NotFoundException('Order not found');
 
-    // Transaction : passage PAID + création des Downloads + vidage du panier
-    // en une seule opération atomique. Si l'une échoue, aucune n'est appliquée.
+    // Transaction : passage PAID + vidage du panier en une seule opération atomique.
     await this.prisma.$transaction(async (tx) => {
       await tx.order.update({
         where: { id: orderId },
         data: { status: PaymentStatus.PAID },
       });
-
-      // Création d'un Download pour chaque SOURCE_3D des modèles achetés.
-      // C'est ce qui débloque l'accès au téléchargement côté DownloadsService.
-      for (const item of order.items) {
-        if (!item.model) continue;
-        const sourceFiles = item.model.files.filter((f) => f.fileType === 'SOURCE_3D');
-        for (const file of sourceFiles) {
-          await tx.download.create({
-            data: { userId, fileId: file.id, orderId },
-          });
-        }
-      }
 
       // Vidage du panier après paiement réussi.
       // Le Cart lui-même est conservé pour les prochains achats.

@@ -24,7 +24,6 @@ describe('OrdersService', () => {
   };
   let tx: {
     order: { update: jest.Mock };
-    download: { create: jest.Mock };
     cart: { findUnique: jest.Mock };
     cartItem: { deleteMany: jest.Mock };
   };
@@ -35,7 +34,6 @@ describe('OrdersService', () => {
 
     tx = {
       order: { update: jest.fn() },
-      download: { create: jest.fn() },
       cart: { findUnique: jest.fn() },
       cartItem: { deleteMany: jest.fn() },
     };
@@ -179,15 +177,6 @@ describe('OrdersService', () => {
         expect(tx.order.update).toHaveBeenCalledWith({
           where: { id: orderId },
           data: { status: PaymentStatus.PAID },
-        });
-      });
-
-      it('cree uniquement un Download pour les fichiers SOURCE_3D', async () => {
-        await service.handleWebhook(Buffer.from('payload'), 'sig');
-
-        expect(tx.download.create).toHaveBeenCalledTimes(1);
-        expect(tx.download.create).toHaveBeenCalledWith({
-          data: { userId, fileId: 'file-source', orderId },
         });
       });
 
