@@ -49,6 +49,14 @@ export class AuthService {
     return { user: safeUser, access_token: this.signToken(user.id, user.role) };
   }
 
+  async getMe(userId: string) {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
+      omit: { passwordHash: true },
+      include: { artist: true },
+    });
+  }
+
   private signToken(userId: string, role: string) {
     // sub (subject) est la convention JWT standard pour l'identifiant du porteur.
     return this.jwt.sign({ sub: userId, role });
