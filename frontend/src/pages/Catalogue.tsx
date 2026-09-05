@@ -25,11 +25,16 @@ export default function Catalogue() {
     setLoading(true)
     const params = new URLSearchParams({ page: String(page), limit: '12', sortBy })
     if (categoryId) params.set('categoryId', categoryId)
-    const res = await api.get<PaginatedResponse<Model3D>>(`/models?${params}`)
-    setModels(res.data)
-    setTotal(res.meta.total)
-    setTotalPages(res.meta.totalPages)
-    setLoading(false)
+    try {
+      const res = await api.get<PaginatedResponse<Model3D>>(`/models?${params}`)
+      setModels(res.data)
+      setTotal(res.meta.total)
+      setTotalPages(res.meta.totalPages)
+    } catch {
+      setModels([])
+    } finally {
+      setLoading(false)
+    }
   }, [page, sortBy, categoryId])
 
   useEffect(() => {
