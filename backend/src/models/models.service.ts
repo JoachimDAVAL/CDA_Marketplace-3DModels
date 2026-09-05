@@ -166,7 +166,7 @@ export class ModelsService {
 
     // Upload des renders en parallèle pour optimiser le temps de traitement.
     const renderUploads = await Promise.all(
-      files.renders.map((f) => this.storage.upload(f.buffer, 'renders', f.originalname)),
+      files.renders.map((f) => this.storage.upload(f.buffer, 'renders', f.originalname, f.mimetype)),
     );
 
     // Upload du SOURCE_3D (fichier original haute qualité, accès privé post-achat).
@@ -174,6 +174,7 @@ export class ModelsService {
       files.source.buffer,
       'sources',
       files.source.originalname,
+      files.source.mimetype,
     );
 
     // Génération et upload du PREVIEW_3D (GLB compressé Draco, accès public pour le viewer).
@@ -183,6 +184,7 @@ export class ModelsService {
       previewBuffer,
       'previews',
       files.source.originalname,
+      'model/gltf-binary',
     );
 
     // Création du modèle et de tous ses fichiers dans une transaction.

@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async updateAvatar(id: string, file: Express.Multer.File) {
-    const { url } = await this.storage.upload(file.buffer, 'avatars', file.originalname);
+    const { url } = await this.storage.upload(file.buffer, 'avatars', file.originalname, file.mimetype);
     return this.prisma.user.update({
       where: { id },
       data: { avatar: url },

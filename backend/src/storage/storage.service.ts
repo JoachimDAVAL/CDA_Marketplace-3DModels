@@ -28,7 +28,7 @@ export class StorageService {
     });
   }
 
-  async upload(buffer: Buffer, folder: string, originalName: string): Promise<{ key: string; url: string }> {
+  async upload(buffer: Buffer, folder: string, originalName: string, contentType?: string): Promise<{ key: string; url: string }> {
     const ext = originalName.split('.').pop();
     // UUID pour le nom de fichier : évite les collisions et les conflits
     // si deux artistes uploadent un fichier avec le même nom.
@@ -39,10 +39,15 @@ export class StorageService {
         Bucket: this.bucket,
         Key: key,
         Body: buffer,
+        ContentType: contentType,
       }),
     );
 
     return { key, url: `${this.publicUrl}/${key}` };
+  }
+
+  getPublicUrl(): string {
+    return this.publicUrl;
   }
 
   async getSignedUrl(fileUrl: string, expiresIn = 60): Promise<string> {
