@@ -34,24 +34,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     else setItems([])
   }, [isAuthenticated, fetchCart])
 
-  const addItem = async (modelId: string) => {
+  const addItem = useCallback(async (modelId: string) => {
     await api.post('/cart/items', { modelId })
     await fetchCart()
-  }
+  }, [fetchCart])
 
-  const removeItem = async (modelId: string) => {
+  const removeItem = useCallback(async (modelId: string) => {
     await api.del(`/cart/items/${modelId}`)
     await fetchCart()
-  }
+  }, [fetchCart])
 
-  const clearCart = () => setItems([])
+  const clearCart = useCallback(() => setItems([]), [])
+  const openCart  = useCallback(() => setIsOpen(true), [])
+  const closeCart = useCallback(() => setIsOpen(false), [])
 
   return (
     <CartContext.Provider value={{
       items,
       isOpen,
-      openCart: () => setIsOpen(true),
-      closeCart: () => setIsOpen(false),
+      openCart,
+      closeCart,
       addItem,
       removeItem,
       clearCart,
