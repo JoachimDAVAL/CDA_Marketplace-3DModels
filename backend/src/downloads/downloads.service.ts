@@ -41,24 +41,26 @@ export class DownloadsService {
     });
     if (!orderItem) throw new ForbiddenException('Purchase required to download this file');
 
-    const [orderItemCount, downloadCount] = await Promise.all([
-      this.prisma.orderItem.count({ where: { modelId: file.modelId, order: { userId, status: 'PAID' } } }),
-      this.prisma.download.count({ where: { userId, fileId } }),
-    ]);
-    const totalRemaining = orderItemCount * MAX_DOWNLOADS_PER_FILE - downloadCount;
-    if (totalRemaining <= 0) {
-      throw new ForbiddenException(`Download limit reached (${MAX_DOWNLOADS_PER_FILE} per purchase)`);
-    }
-
-    await this.prisma.$transaction([
-      this.prisma.download.create({
+    // Transaction interactive : les counts et le write sont dans la même transaction
+    // pour éviter qu'un double-clic ou deux onglets simultanés contournent la limite.
+    const totalRemaining = await this.prisma.$transaction(async (tx) => {
+      const [orderItemCount, downloadCount] = await Promise.all([
+        tx.orderItem.count({ where: { modelId: file.modelId, order: { userId, status: 'PAID' } } }),
+        tx.download.count({ where: { userId, fileId } }),
+      ]);
+      const remaining = orderItemCount * MAX_DOWNLOADS_PER_FILE - downloadCount;
+      if (remaining <= 0) {
+        throw new ForbiddenException(`Download limit reached (${MAX_DOWNLOADS_PER_FILE} per purchase)`);
+      }
+      await tx.download.create({
         data: { userId, fileId, orderId: orderItem.order.id },
-      }),
-      this.prisma.model3D.update({
-        where: { id: file.modelId },
+      });
+      await tx.model3D.update({
+        where: { id: file.modelId! },
         data: { downloadCount: { increment: 1 } },
-      }),
-    ]);
+      });
+      return remaining;
+    });
 
     const signedUrl = await this.storage.getSignedUrl(file.url, 60);
 
