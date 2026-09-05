@@ -21,14 +21,18 @@ export class AuthService {
     // 10 salt rounds : bon compromis sécurité/performance (recommandation OWASP).
     // En dessous de 10, le hash est trop rapide à bruteforcer.
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const user = await this.prisma.user.create({
-      data: { email: dto.email, username: dto.username, passwordHash },
-      // omit exclut passwordHash de l'objet retourné par Prisma (feature omitApi).
-      // Evite de l'exposer accidentellement dans la réponse.
-      omit: { passwordHash: true },
-    });
-
-    return { user, access_token: this.signToken(user.id, user.role) };
+    try {
+      const user = await this.prisma.user.create({
+        data: { email: dto.email, username: dto.username, passwordHash },
+        // omit exclut passwordHash de l'objet retourné par Prisma (feature omitApi).
+        // Evite de l'exposer accidentellement dans la réponse.
+        omit: { passwordHash: true },
+      });
+      return { user, access_token: this.signToken(user.id, user.role) };
+    } catch (e) {
+      if (e.code === 'P2002') throw new ConflictException('Email or username already taken');
+      throw e;
+    }
   }
 
   async login(dto: LoginDto) {
