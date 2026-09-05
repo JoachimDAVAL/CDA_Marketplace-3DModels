@@ -33,9 +33,12 @@ const LIMIT = 20
 const COL = {
   model:   { flex: '1 1 auto', minWidth: 0 },
   artist:  { width: 130, flexShrink: 0 },
-  status:  { width: 110, flexShrink: 0 },
   price:   { width: 80,  flexShrink: 0, textAlign: 'right' as const },
-  actions: { width: 160, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' as const },
+  actions: { width: 190, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' as const, alignItems: 'center' as const, gap: 8 },
+}
+
+const BADGE_BTN: React.CSSProperties = {
+  background: 'none', border: 'none', padding: 0, cursor: 'pointer',
 }
 
 function ModelRow({ model, onStatusChange }: {
@@ -73,12 +76,6 @@ function ModelRow({ model, onStatusChange }: {
 
       <span className="vk-table__cell vk-col-hide-mobile" style={COL.artist}>{artistName}</span>
 
-      <div style={COL.status}>
-        <Badge tone={STATUS_TONE[model.status] ?? 'neutral'}>
-          {STATUS_LABEL[model.status] ?? model.status}
-        </Badge>
-      </div>
-
       <span className="vk-table__cell vk-col-hide-mobile" style={COL.price}>
         {parseFloat(model.price) === 0 ? 'Gratuit' : `${parseFloat(model.price).toFixed(2)} EUR`}
       </span>
@@ -86,6 +83,7 @@ function ModelRow({ model, onStatusChange }: {
       <div style={COL.actions} className="vk-table__actions">
         {model.status === 'PENDING' && (
           <>
+            <Badge tone="warning">En attente</Badge>
             <button
               className="vk-confirm__btn vk-confirm__btn--ok"
               disabled={busy}
@@ -105,24 +103,17 @@ function ModelRow({ model, onStatusChange }: {
           </>
         )}
         {model.status === 'ONLINE' && (
-          <button
-            className="vk-confirm__btn vk-confirm__btn--no"
-            disabled={busy}
-            onClick={() => update('OFFLINE')}
-            title="Mettre hors ligne"
-          >
-            Hors ligne
+          <button style={BADGE_BTN} disabled={busy} onClick={() => update('OFFLINE')} title="Mettre hors ligne">
+            <Badge tone="success">{STATUS_LABEL.ONLINE}</Badge>
           </button>
         )}
         {model.status === 'OFFLINE' && (
-          <button
-            className="vk-confirm__btn vk-confirm__btn--ok"
-            disabled={busy}
-            onClick={() => update('ONLINE')}
-            title="Remettre en ligne"
-          >
-            En ligne
+          <button style={BADGE_BTN} disabled={busy} onClick={() => update('ONLINE')} title="Remettre en ligne">
+            <Badge tone="neutral">{STATUS_LABEL.OFFLINE}</Badge>
           </button>
+        )}
+        {model.status === 'REJECTED' && (
+          <Badge tone="danger">{STATUS_LABEL.REJECTED}</Badge>
         )}
       </div>
     </div>
@@ -207,7 +198,6 @@ export default function AdminModels() {
           <div className="vk-table__head" style={{ padding: '14px 14px 12px' }}>
             <div style={COL.model}>Modele</div>
             <div className="vk-col-hide-mobile" style={COL.artist}>Artiste</div>
-            <div style={COL.status}>Statut</div>
             <div className="vk-col-hide-mobile" style={COL.price}>Prix</div>
             <div style={COL.actions} />
           </div>

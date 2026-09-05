@@ -8,7 +8,7 @@ type AdminUser = User & {
   artist: { id: string; status: string; firstname: string; lastname: string } | null
 }
 
-const ROLE_LABEL: Record<string, string> = { USER: 'Utilisateur', ARTIST: 'Artiste', ADMIN: 'Admin' }
+const ROLE_LABEL: Record<string, string> = { USER: 'U', ARTIST: 'Art', ADMIN: 'A' }
 const ROLE_TONE: Record<string, 'neutral' | 'success' | 'warning'> = {
   USER: 'neutral', ARTIST: 'success', ADMIN: 'warning',
 }
@@ -22,10 +22,9 @@ const ARTIST_LABEL: Record<string, string> = {
 const LIMIT = 20
 const COL = {
   user:    { flex: '1 1 auto', minWidth: 0 },
-  role:    { width: 100, flexShrink: 0 },
   artist:  { width: 110, flexShrink: 0 },
   since:   { width: 110, flexShrink: 0 },
-  actions: { width: 160, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' as const },
+  actions: { width: 160, flexShrink: 0, display: 'flex', justifyContent: 'flex-end' as const, alignItems: 'center' as const, gap: 8 },
 }
 
 function UserRow({
@@ -58,10 +57,6 @@ function UserRow({
         </div>
       </div>
 
-      <div style={COL.role}>
-        <Badge tone={ROLE_TONE[user.role] ?? 'neutral'}>{ROLE_LABEL[user.role] ?? user.role}</Badge>
-      </div>
-
       <div className="vk-col-hide-mobile" style={COL.artist}>
         {user.artist ? (
           <Badge tone={ARTIST_TONE[user.artist.status] ?? 'neutral'}>
@@ -77,6 +72,9 @@ function UserRow({
       </span>
 
       <div style={COL.actions}>
+        {!confirm && (
+          <Badge tone={ROLE_TONE[user.role] ?? 'neutral'}>{ROLE_LABEL[user.role] ?? user.role}</Badge>
+        )}
         {confirm ? (
           <div className="vk-confirm">
             <span className="vk-confirm__txt">Supprimer ?</span>
@@ -171,7 +169,6 @@ export default function AdminUsers() {
         <div className="vk-panel" style={{ padding: 0, overflow: 'hidden' }}>
           <div className="vk-table__head" style={{ padding: '14px 14px 12px' }}>
             <div style={COL.user}>Utilisateur</div>
-            <div style={COL.role}>Role</div>
             <div className="vk-col-hide-mobile" style={COL.artist}>Artiste</div>
             <div className="vk-col-hide-mobile" style={COL.since}>Inscription</div>
             <div style={COL.actions} />

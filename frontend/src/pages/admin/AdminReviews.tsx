@@ -176,7 +176,7 @@ export default function AdminReviews() {
         </div>
       ) : (
         <div className="vk-panel" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="vk-table__head" style={{ padding: '14px 14px 12px' }}>
+          <div className="vk-table__head vk-col-desktop-only" style={{ padding: '14px 14px 12px' }}>
             <div style={COL.user}>Utilisateur</div>
             <div style={COL.model}>Modele</div>
             <div style={COL.rating}>Note</div>
