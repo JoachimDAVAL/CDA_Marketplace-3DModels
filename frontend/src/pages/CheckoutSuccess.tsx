@@ -22,7 +22,7 @@ export default function CheckoutSuccess() {
 
   if (!succeeded) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, minHeight: 'calc(100vh - 80px)', padding: '48px 24px', textAlign: 'center' }}>
+      <div className="vk-page-center" style={{ gap: 24, padding: '48px 24px', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 72, height: 72, borderRadius: '50%', background: 'color-mix(in srgb, var(--danger) 12%, transparent)' }}>
           <Icon name="alert-circle" size={36} style={{ color: 'var(--danger)' }} />
         </div>
@@ -43,7 +43,7 @@ export default function CheckoutSuccess() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, minHeight: 'calc(100vh - 80px)', padding: '48px 24px', textAlign: 'center' }}>
+    <div className="vk-page-center" style={{ gap: 24, padding: '48px 24px', textAlign: 'center' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 72, height: 72, borderRadius: '50%', background: 'color-mix(in srgb, #7aa2f7 12%, transparent)' }}>
         <Icon name="check-circle" size={36} style={{ color: '#7aa2f7' }} />
       </div>

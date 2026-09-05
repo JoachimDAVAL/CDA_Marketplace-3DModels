@@ -26,15 +26,13 @@ export default function ArtistProfile() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-sans)' }}>
-        Chargement…
-      </div>
+      <div className="vk-loading-page">Chargement…</div>
     )
   }
 
   if (notFound || !artist) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, minHeight: 'calc(100vh - 80px)' }}>
+      <div className="vk-page-center">
         <p style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-sans)' }}>Artiste introuvable.</p>
         <Button variant="outline" onClick={() => navigate('/')}>Retour au catalogue</Button>
       </div>

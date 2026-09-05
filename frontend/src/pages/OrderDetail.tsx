@@ -114,9 +114,7 @@ export default function OrderDetail() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 80px)', color: 'var(--text-tertiary)', fontFamily: 'var(--font-sans)' }}>
-        Chargement…
-      </div>
+      <div className="vk-loading-page">Chargement…</div>
     )
   }
 
@@ -126,7 +124,7 @@ export default function OrderDetail() {
 
   return (
     <div className="vk-container" style={{ paddingTop: 48, paddingBottom: 80 }}>
-      <div style={{ maxWidth: 760, margin: '0 auto' }}>
+      <div className="vk-page-wrap" style={{ gap: 0 }}>
         <div className="vk-order-detail">
 
           {/* Back link */}
