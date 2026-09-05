@@ -125,7 +125,7 @@ export default function Checkout() {
 
   return (
     <div className="vk-container" style={{ paddingTop: 48, paddingBottom: 80 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 48, maxWidth: 920, margin: '0 auto' }}>
+      <div className="vk-checkout-grid">
 
         {/* Formulaire Stripe */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
