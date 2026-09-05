@@ -19,18 +19,21 @@ export interface User {
   artist?: Artist | null
 }
 
-export interface Artist {
+export interface ArtistPublic {
   id: string
   firstname: string
   lastname: string
   bio: string | null
-  siret: string | null
   portfolioUrl: string | null
   status: ArtistStatus
   createdAt: string
   updatedAt: string
   userId: string
   user?: { id: string; username: string; avatar: string | null }
+}
+
+export interface Artist extends ArtistPublic {
+  siret: string | null
 }
 
 export interface Category {
@@ -149,7 +152,7 @@ export interface DownloadResponse {
   downloadsRemaining: number
 }
 
-export interface ArtistPublicProfile extends Artist {
+export interface ArtistPublicProfile extends ArtistPublic {
   user: { id: string; username: string; avatar: string | null }
   models: (Model3D & { files: ModelFile[]; category: Category | null })[]
   stats: {

@@ -12,14 +12,14 @@ export function ModelCardSkeleton() {
 }
 
 import { useNavigate, Link } from 'react-router-dom'
-import type { Model3D, ModelFile, Artist, Category } from '../../types'
+import type { Model3D, ModelFile, ArtistPublic, Category } from '../../types'
 import { Button, Icon, Rating } from '../ui'
 import { formatPrice } from '../../lib/format'
 
 interface ModelCardProps {
   model: Model3D & {
     files?: ModelFile[]
-    artist?: Artist & { user?: { username: string; avatar: string | null } }
+    artist?: ArtistPublic & { user?: { username: string; avatar: string | null } }
     category?: Category
   }
   avgRating?: number
