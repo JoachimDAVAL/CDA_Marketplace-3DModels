@@ -5,6 +5,7 @@ import type { Order, ModelFile } from '../types'
 import { Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
 import { shortId } from '../lib/format'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'En attente',
@@ -99,6 +100,7 @@ export default function OrderDetail() {
   const navigate = useNavigate()
   const [order, setOrder] = useState<OrderDetail | null>(null)
   const [loading, setLoading] = useState(true)
+  usePageTitle(order ? shortId(order.id) : 'Commande')
 
   const fetchOrder = useCallback(() => {
     if (!id) return

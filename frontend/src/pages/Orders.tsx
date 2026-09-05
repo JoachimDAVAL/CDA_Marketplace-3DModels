@@ -5,6 +5,7 @@ import type { Order } from '../types'
 import { Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
 import { shortId } from '../lib/format'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'En attente',
@@ -21,6 +22,7 @@ const STATUS_TONE: Record<string, BadgeTone> = {
 
 
 export default function Orders() {
+  usePageTitle('Mes commandes')
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
 

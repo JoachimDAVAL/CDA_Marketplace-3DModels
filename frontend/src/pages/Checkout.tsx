@@ -6,6 +6,7 @@ import { api, ApiError } from '../lib/api'
 import type { CheckoutResponse } from '../types'
 import { useCart } from '../contexts/CartContext'
 import { Button } from '../components/ui'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ?? '')
 
@@ -71,6 +72,7 @@ function CheckoutForm({ total, onCancel }: { total: number; onCancel: () => void
 }
 
 export default function Checkout() {
+  usePageTitle('Paiement')
   const navigate = useNavigate()
   const { items } = useCart()
   const [clientSecret, setClientSecret] = useState<string | null>(null)

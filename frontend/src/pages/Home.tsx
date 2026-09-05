@@ -5,6 +5,7 @@ import type { Model3D, PaginatedResponse } from '../types'
 import { Avatar, Button, Icon, Rating } from '../components/ui'
 import { ModelCard } from '../components/models/ModelCard'
 import { useCart } from '../contexts/CartContext'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 interface FeaturedArtist {
   id: string
@@ -16,6 +17,7 @@ interface FeaturedArtist {
 }
 
 export default function Home() {
+  usePageTitle('Accueil')
   const navigate = useNavigate()
   const { addItem, openCart } = useCart()
   const [recentModels, setRecentModels] = useState<Model3D[]>([])

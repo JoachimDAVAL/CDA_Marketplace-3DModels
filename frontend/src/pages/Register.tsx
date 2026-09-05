@@ -4,8 +4,10 @@ import { api, ApiError } from '../lib/api'
 import type { AuthResponse } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { Button, Input, Logo } from '../components/ui'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function Register() {
+  usePageTitle('Inscription')
   const { login } = useAuth()
   const navigate = useNavigate()
 

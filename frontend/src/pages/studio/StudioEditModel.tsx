@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import { api, ApiError } from '../../lib/api'
 import type { Model3D, Category } from '../../types'
 import { Badge, Button, Icon, Input } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const STATUS_LABEL: Record<string, string> = {
   ONLINE: 'En ligne', PENDING: 'En attente', REJECTED: 'Refusé', OFFLINE: 'Hors ligne',
@@ -19,6 +20,7 @@ export default function StudioEditModel() {
   const [categories, setCategories] = useState<Category[]>([])
   const [form, setForm] = useState({ title: '', description: '', price: '0', categoryId: '' })
   const [loading, setLoading] = useState(true)
+  usePageTitle(form.title || 'Modifier le modèle')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 

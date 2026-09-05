@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { Button, Icon } from '../components/ui'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function CheckoutCancel() {
+  usePageTitle('Paiement annulé')
   const { openCart } = useCart()
 
   return (

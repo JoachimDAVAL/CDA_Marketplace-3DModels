@@ -7,6 +7,7 @@ import type { TabItem } from '../components/ui'
 import { Viewer3D } from '../components/viewer/Viewer3D'
 import { ReviewsList } from '../components/reviews/ReviewsList'
 import { useCart } from '../contexts/CartContext'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const TABS: TabItem[] = [
   { id: 'overview', label: "Vue d'ensemble" },
@@ -29,6 +30,7 @@ export default function ModelDetail() {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
+  usePageTitle(model?.title ?? 'Modèle 3D')
 
   useEffect(() => {
     if (!id) return

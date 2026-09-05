@@ -4,8 +4,10 @@ import { api } from '../lib/api'
 import type { Model3D } from '../types'
 import { ModelCard } from '../components/models/ModelCard'
 import { useCart } from '../contexts/CartContext'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function Search() {
+  usePageTitle('Recherche')
   const [searchParams] = useSearchParams()
   const q = searchParams.get('q') ?? ''
   const { addItem, openCart } = useCart()

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import type { ArtistStats } from '../../types'
 import { Badge, Icon } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const STATUS_LABEL: Record<string, string> = {
   ONLINE: 'En ligne', PENDING: 'En attente', REJECTED: 'Refusé', OFFLINE: 'Hors ligne',
@@ -56,6 +57,7 @@ function SortHeader({ label, sortKey: _sortKey, active, onClick, style }: {
 }
 
 export default function StudioStats() {
+  usePageTitle('Statistiques')
   const [stats, setStats] = useState<ArtistStats | null>(null)
   const [loading, setLoading] = useState(true)
   const [sortBy, setSortBy] = useState<SortKey>('revenue')

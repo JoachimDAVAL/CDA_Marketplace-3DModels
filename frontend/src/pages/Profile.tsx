@@ -5,6 +5,7 @@ import { api } from '../lib/api'
 import { Avatar, Badge, Button, Icon } from '../components/ui'
 import type { BadgeTone } from '../components/ui/Badge'
 import type { Order } from '../types'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 const ROLE_LABEL: Record<string, string> = { USER: 'Utilisateur', ARTIST: 'Artiste', ADMIN: 'Administrateur' }
 const ROLE_TONE: Record<string, BadgeTone> = { USER: 'neutral', ARTIST: 'success', ADMIN: 'warning' }
@@ -12,6 +13,7 @@ const ARTIST_STATUS_LABEL: Record<string, string> = { PENDING: 'En attente', APP
 const ARTIST_STATUS_TONE: Record<string, BadgeTone> = { PENDING: 'warning', APPROVED: 'success', REJECTED: 'danger' }
 
 export default function Profile() {
+  usePageTitle('Mon profil')
   const { user, refreshUser } = useAuth()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)

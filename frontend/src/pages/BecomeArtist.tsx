@@ -4,8 +4,10 @@ import { api, ApiError } from '../lib/api'
 import type { Artist } from '../types'
 import { useAuth } from '../contexts/AuthContext'
 import { Badge, Button, Icon, Input } from '../components/ui'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function BecomeArtist() {
+  usePageTitle('Devenir artiste')
   const { user, refreshUser } = useAuth()
   const navigate = useNavigate()
 

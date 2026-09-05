@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useCart } from '../contexts/CartContext'
 import { Button, Icon } from '../components/ui'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function CheckoutSuccess() {
+  usePageTitle('Commande confirmée')
   const [searchParams] = useSearchParams()
   const { clearCart } = useCart()
   const cleared = useRef(false)

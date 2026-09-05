@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { api, ApiError } from '../../lib/api'
 import type { Category, Model3D } from '../../types'
 import { Button, Icon, Input } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function DropZone({
   label, hint, accept, multiple, files, onChange,
@@ -58,6 +59,7 @@ function DropZone({
 }
 
 export default function StudioUpload() {
+  usePageTitle('Nouveau modèle')
   const navigate = useNavigate()
   const [categories, setCategories] = useState<Category[]>([])
   const [form, setForm] = useState({ title: '', description: '', price: '0', categoryId: '' })

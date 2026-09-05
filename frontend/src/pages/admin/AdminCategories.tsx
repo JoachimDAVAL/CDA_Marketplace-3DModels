@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { api, ApiError } from '../../lib/api'
 import type { Category } from '../../types'
 import { Icon, IconButton } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function CategoryRow({ cat, onUpdate, onDelete }: {
   cat: Category
@@ -104,6 +105,7 @@ function CategoryRow({ cat, onUpdate, onDelete }: {
 }
 
 export default function AdminCategories() {
+  usePageTitle('Catégories — Admin')
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading]       = useState(true)
   const [newName, setNewName]       = useState('')

@@ -4,6 +4,7 @@ import { api } from '../lib/api'
 import type { ArtistPublicProfile } from '../types'
 import { Avatar, Button, Rating } from '../components/ui'
 import { ModelCard } from '../components/models/ModelCard'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function ArtistProfile() {
   const { id } = useParams<{ id: string }>()
@@ -11,6 +12,8 @@ export default function ArtistProfile() {
   const [artist, setArtist] = useState<ArtistPublicProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+  const artistName = artist ? (artist.user?.username ?? `${artist.firstname} ${artist.lastname}`.trim()) : 'Artiste'
+  usePageTitle(artistName)
 
   useEffect(() => {
     if (!id) return

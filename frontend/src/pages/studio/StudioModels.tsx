@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import type { ArtistStats, ArtistModelStat } from '../../types'
 import { Badge, Button, Icon } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 const STATUS_LABEL: Record<string, string> = {
   ONLINE: 'En ligne', PENDING: 'En attente', REJECTED: 'Refusé', OFFLINE: 'Hors ligne',
@@ -68,6 +69,7 @@ function ModelRow({ model }: { model: ArtistModelStat }) {
 }
 
 export default function StudioModels() {
+  usePageTitle('Mes modèles')
   const [stats, setStats] = useState<ArtistStats | null>(null)
   const [loading, setLoading] = useState(true)
 

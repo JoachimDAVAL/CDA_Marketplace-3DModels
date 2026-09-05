@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import type { ArtistStats } from '../../types'
 import { Badge, Button, Icon } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 function StatCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
@@ -22,6 +23,7 @@ const STATUS_TONE: Record<string, 'success' | 'warning' | 'danger' | 'neutral'> 
 }
 
 export default function StudioDashboard() {
+  usePageTitle('Dashboard')
   const [stats, setStats] = useState<ArtistStats | null>(null)
   const [loading, setLoading] = useState(true)
 

@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui'
+import { usePageTitle } from '../hooks/usePageTitle'
 
 export default function NotFound() {
+  usePageTitle('Page introuvable')
   return (
     <div style={{
       minHeight: 'calc(100vh - var(--topbar-h))',

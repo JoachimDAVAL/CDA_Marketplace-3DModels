@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import type { PaginatedResponse, ModelStatus } from '../../types'
 import { Badge, Icon, Pagination } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 interface AdminModel {
   id: string
@@ -118,6 +119,7 @@ function ModelRow({ model, onStatusChange }: {
 }
 
 export default function AdminModels() {
+  usePageTitle('Modèles — Admin')
   const [models, setModels] = useState<AdminModel[]>([])
   const [total, setTotal]   = useState(0)
   const [totalPages, setTotalPages] = useState(1)

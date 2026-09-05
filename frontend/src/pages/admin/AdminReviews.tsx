@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { api } from '../../lib/api'
 import type { PaginatedResponse } from '../../types'
 import { Avatar, Icon, Pagination } from '../../components/ui'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 interface AdminReview {
   id: string
@@ -126,6 +127,7 @@ function ReviewRow({ review, onDelete }: { review: AdminReview; onDelete: (id: s
 }
 
 export default function AdminReviews() {
+  usePageTitle('Avis — Admin')
   const [reviews, setReviews] = useState<AdminReview[]>([])
   const [total, setTotal] = useState(0)
   const [totalPages, setTotalPages] = useState(1)

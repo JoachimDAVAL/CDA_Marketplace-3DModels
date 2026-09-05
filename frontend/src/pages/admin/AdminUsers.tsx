@@ -3,6 +3,7 @@ import { api } from '../../lib/api'
 import type { User, PaginatedResponse } from '../../types'
 import { Avatar, Badge, Icon, Input, Pagination } from '../../components/ui'
 import { useAuth } from '../../contexts/AuthContext'
+import { usePageTitle } from '../../hooks/usePageTitle'
 
 type AdminUser = User & {
   artist: { id: string; status: string; firstname: string; lastname: string } | null
@@ -97,6 +98,7 @@ function UserRow({
 }
 
 export default function AdminUsers() {
+  usePageTitle('Utilisateurs — Admin')
   const { user: self } = useAuth()
   const [users, setUsers]   = useState<AdminUser[]>([])
   const [total, setTotal]   = useState(0)
