@@ -6,19 +6,26 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AdminService {
   constructor(private prisma: PrismaService) {}
 
-  async findAllUsers(page: number, limit: number) {
+  async findAllUsers(page: number, limit: number, search?: string) {
     const skip = (page - 1) * limit;
+    const where = search
+      ? {
+          OR: [
+            { username: { contains: search, mode: 'insensitive' as const } },
+            { email: { contains: search, mode: 'insensitive' as const } },
+          ],
+        }
+      : {};
 
-    // Parallel count + fetch pour ne pas faire deux aller-retours sequentiels.
     const [total, users] = await Promise.all([
-      this.prisma.user.count(),
+      this.prisma.user.count({ where }),
       this.prisma.user.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
         omit: { passwordHash: true },
         include: {
-          // On expose le profil artiste pour que l admin voie le statut d un coup.
           artist: { select: { id: true, status: true, firstname: true, lastname: true } },
         },
       }),

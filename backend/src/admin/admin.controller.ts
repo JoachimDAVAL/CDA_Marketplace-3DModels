@@ -14,9 +14,9 @@ export class AdminController {
   findAllUsers(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(20), ParseIntPipe) limit: number,
+    @Query('search') search?: string,
   ) {
-    // DefaultValuePipe avant ParseIntPipe pour eviter une erreur si le param est absent.
-    return this.adminService.findAllUsers(page, limit);
+    return this.adminService.findAllUsers(page, limit, search);
   }
 
   @Get('models')

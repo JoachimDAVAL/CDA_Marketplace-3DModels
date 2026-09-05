@@ -105,18 +105,26 @@ export default function AdminUsers() {
   const [totalPages, setTotalPages] = useState(1)
   const [page, setPage]     = useState(1)
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const t = setTimeout(() => { setDebouncedSearch(search); setPage(1) }, 300)
+    return () => clearTimeout(t)
+  }, [search])
 
   const fetchUsers = useCallback(() => {
     setLoading(true)
-    api.get<PaginatedResponse<AdminUser>>(`/admin/users?page=${page}&limit=${LIMIT}`)
+    const params = new URLSearchParams({ page: String(page), limit: String(LIMIT) })
+    if (debouncedSearch) params.set('search', debouncedSearch)
+    api.get<PaginatedResponse<AdminUser>>(`/admin/users?${params}`)
       .then(res => {
         setUsers(res.data)
         setTotal(res.meta.total)
         setTotalPages(res.meta.totalPages)
       })
       .finally(() => setLoading(false))
-  }, [page])
+  }, [page, debouncedSearch])
 
   useEffect(() => { fetchUsers() }, [fetchUsers])
 
@@ -124,13 +132,6 @@ export default function AdminUsers() {
     await api.del(`/admin/users/${id}`)
     fetchUsers()
   }
-
-  const filtered = search.trim()
-    ? users.filter(u =>
-        u.username.toLowerCase().includes(search.toLowerCase()) ||
-        u.email.toLowerCase().includes(search.toLowerCase())
-      )
-    : users
 
   return (
     <>
@@ -161,7 +162,7 @@ export default function AdminUsers() {
         <div style={{ color: 'var(--text-tertiary)', fontFamily: 'var(--font-sans)', padding: '40px 0' }}>
           Chargement...
         </div>
-      ) : filtered.length === 0 ? (
+      ) : users.length === 0 ? (
         <div className="vk-admin__empty">
           <div className="vk-admin__empty-icon"><Icon name="users" size={28} /></div>
           <p className="vk-admin__empty-title">Aucun utilisateur</p>
@@ -176,7 +177,7 @@ export default function AdminUsers() {
             <div style={COL.actions} />
           </div>
           <div className="vk-table">
-            {filtered.map(u => (
+            {users.map(u => (
               <UserRow
                 key={u.id}
                 user={u}
@@ -188,7 +189,7 @@ export default function AdminUsers() {
         </div>
       )}
 
-      {totalPages > 1 && !search && (
+      {totalPages > 1 && (
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
           <Pagination page={page} pageCount={totalPages} onChange={setPage} />
         </div>
