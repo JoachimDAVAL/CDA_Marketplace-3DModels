@@ -105,7 +105,7 @@ export class ModelsService {
         artist: { include: { user: { select: { username: true, avatar: true } } } },
         files: { where: { fileType: FileType.RENDER_IMAGE } },
       },
-      take: 50,
+      take: 20,
     });
   }
 

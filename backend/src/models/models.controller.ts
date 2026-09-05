@@ -5,6 +5,7 @@ import { CreateModelDto } from './dto/create-model.dto';
 import { UpdateModelDto } from './dto/update-model.dto';
 import { UpdateModelStatusDto } from './dto/update-model-status.dto';
 import { GetModelsDto } from './dto/get-models.dto';
+import { SearchModelDto } from './dto/search-model.dto';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -23,8 +24,8 @@ export class ModelsController {
 
   // Route search avant :id pour éviter que NestJS interprète "search" comme un UUID.
   @Get('search')
-  search(@Query('q') q: string) {
-    return this.modelsService.search(q ?? '');
+  search(@Query() dto: SearchModelDto) {
+    return this.modelsService.search(dto.q);
   }
 
   @UseGuards(OptionalJwtGuard)
