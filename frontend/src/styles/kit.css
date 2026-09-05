@@ -159,7 +159,6 @@
   transition: box-shadow var(--dur-base) var(--ease-standard); }
 .vk-spotlight:hover{ box-shadow:inset 0 0 0 1px var(--border-default), var(--shadow-md); }
 .vk-spotlight__media{ position:relative; background:#0d0d0d; background-size:cover; background-position:center; overflow:hidden; }
-.vk-spotlight:hover .vk-spotlight__media{ }
 .vk-spotlight__tag{ position:absolute; top:18px; left:18px; }
 .vk-spotlight__views{ position:absolute; top:18px; right:18px; display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:var(--radius-pill); background:rgba(0,0,0,.5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); font-family:var(--font-mono); font-size:var(--fs-caption); color:var(--text-primary); }
 .vk-spotlight__body{ padding:48px; display:flex; flex-direction:column; justify-content:center; gap:16px; }
