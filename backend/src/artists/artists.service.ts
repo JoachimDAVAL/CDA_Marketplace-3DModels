@@ -101,34 +101,40 @@ export class ArtistsService {
       where: { status: ArtistStatus.APPROVED },
       include: {
         user: { select: { username: true, avatar: true } },
-        models: {
-          where: { status: ModelStatus.ONLINE },
-          select: { id: true },
-        },
+        models: { where: { status: ModelStatus.ONLINE }, select: { id: true } },
       },
     });
 
-    const featured = await Promise.all(
-      artists.map(async (artist) => {
-        const modelIds = artist.models.map((m) => m.id);
-        const ratings = await this.prisma.review.findMany({
-          where: { modelId: { in: modelIds } },
-          select: { rating: true },
-        });
-        const avgRating =
-          ratings.length > 0
-            ? Math.round((ratings.reduce((s, r) => s + r.rating, 0) / ratings.length) * 10) / 10
-            : 0;
-        return {
-          id: artist.id,
-          firstname: artist.firstname,
-          lastname: artist.lastname,
-          user: artist.user,
-          modelCount: modelIds.length,
-          avgRating,
-        };
-      }),
-    );
+    const allModelIds = artists.flatMap((a) => a.models.map((m) => m.id));
+
+    const ratingsRaw = await this.prisma.review.findMany({
+      where: { modelId: { in: allModelIds } },
+      select: { modelId: true, rating: true },
+    });
+
+    const ratingsByModel = new Map<string, number[]>();
+    for (const r of ratingsRaw) {
+      if (!r.modelId) continue;
+      if (!ratingsByModel.has(r.modelId)) ratingsByModel.set(r.modelId, []);
+      ratingsByModel.get(r.modelId)!.push(r.rating);
+    }
+
+    const featured = artists.map((artist) => {
+      const modelIds = artist.models.map((m) => m.id);
+      const allRatings = modelIds.flatMap((id) => ratingsByModel.get(id) ?? []);
+      const avgRating =
+        allRatings.length > 0
+          ? Math.round((allRatings.reduce((s, r) => s + r, 0) / allRatings.length) * 10) / 10
+          : 0;
+      return {
+        id: artist.id,
+        firstname: artist.firstname,
+        lastname: artist.lastname,
+        user: artist.user,
+        modelCount: modelIds.length,
+        avgRating,
+      };
+    });
 
     return featured
       .sort((a, b) => b.avgRating - a.avgRating)
