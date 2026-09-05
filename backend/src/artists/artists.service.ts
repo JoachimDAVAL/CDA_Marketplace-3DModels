@@ -87,7 +87,13 @@ export class ArtistsService {
         : 0;
 
     return {
-      ...artist,
+      id: artist.id,
+      firstname: artist.firstname,
+      lastname: artist.lastname,
+      bio: artist.bio,
+      portfolioUrl: artist.portfolioUrl,
+      user: artist.user,
+      models: artist.models,
       stats: {
         modelCount: artist.models.length,
         totalSales,
