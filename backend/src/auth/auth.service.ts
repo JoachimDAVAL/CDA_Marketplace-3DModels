@@ -24,9 +24,7 @@ export class AuthService {
     try {
       const user = await this.prisma.user.create({
         data: { email: dto.email, username: dto.username, passwordHash },
-        // omit exclut passwordHash de l'objet retourné par Prisma (feature omitApi).
-        // Evite de l'exposer accidentellement dans la réponse.
-        omit: { passwordHash: true },
+        select: { id: true, email: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true },
       });
       return { user, access_token: this.signToken(user.id, user.role) };
     } catch (e) {
@@ -52,8 +50,16 @@ export class AuthService {
   async getMe(userId: string) {
     return this.prisma.user.findUnique({
       where: { id: userId },
-      omit: { passwordHash: true },
-      include: { artist: true },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        artist: true,
+      },
     });
   }
 

@@ -24,8 +24,14 @@ export class AdminService {
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
-        omit: { passwordHash: true },
-        include: {
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          avatar: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
           artist: { select: { id: true, status: true, firstname: true, lastname: true } },
         },
       }),

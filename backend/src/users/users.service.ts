@@ -25,7 +25,7 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data: dto,
-      omit: { passwordHash: true },
+      select: { id: true, email: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true },
     });
   }
 
@@ -42,7 +42,7 @@ export class UsersService {
     return this.prisma.user.update({
       where: { id },
       data: { avatar: url },
-      omit: { passwordHash: true },
+      select: { id: true, email: true, username: true, avatar: true, role: true, createdAt: true, updatedAt: true },
     });
   }
 
