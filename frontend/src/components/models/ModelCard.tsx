@@ -1,3 +1,16 @@
+export function ModelCardSkeleton() {
+  const pulse = { animation: 'vk-skeleton-pulse 1.5s ease-in-out infinite', background: 'var(--ink-3)', borderRadius: 6 }
+  return (
+    <div className="vk-model">
+      <div className="vk-model__media" style={{ background: 'var(--ink-3)', animation: 'vk-skeleton-pulse 1.5s ease-in-out infinite' }} />
+      <div className="vk-model__body">
+        <div style={{ ...pulse, height: 16, width: '70%' }} />
+        <div style={{ ...pulse, height: 12, width: '40%' }} />
+      </div>
+    </div>
+  )
+}
+
 import { useNavigate, Link } from 'react-router-dom'
 import type { Model3D, ModelFile, Artist, Category } from '../../types'
 import { Button, Icon, Rating } from '../ui'

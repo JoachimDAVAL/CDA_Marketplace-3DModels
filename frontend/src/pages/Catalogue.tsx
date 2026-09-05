@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { api } from '../lib/api'
 import type { Model3D, Category, PaginatedResponse } from '../types'
 import { Pagination } from '../components/ui'
-import { ModelCard } from '../components/models/ModelCard'
+import { ModelCard, ModelCardSkeleton } from '../components/models/ModelCard'
 import { FiltersPanel } from '../components/catalogue/FiltersPanel'
 import { useCart } from '../contexts/CartContext'
 
@@ -63,7 +63,9 @@ export default function Catalogue() {
         <FiltersPanel categories={categories} />
 
         {loading ? (
-          <div className="vk-empty">Chargement…</div>
+          <div className="vk-grid">
+            {Array.from({ length: 12 }).map((_, i) => <ModelCardSkeleton key={i} />)}
+          </div>
         ) : models.length === 0 ? (
           <div className="vk-empty">Aucun modèle dans cette catégorie.</div>
         ) : (

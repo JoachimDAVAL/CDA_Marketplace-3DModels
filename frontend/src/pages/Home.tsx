@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
 import type { Model3D, PaginatedResponse } from '../types'
 import { Avatar, Button, Icon, Rating } from '../components/ui'
-import { ModelCard } from '../components/models/ModelCard'
+import { ModelCard, ModelCardSkeleton } from '../components/models/ModelCard'
 import { useCart } from '../contexts/CartContext'
 import { usePageTitle } from '../hooks/usePageTitle'
 
@@ -22,6 +22,7 @@ export default function Home() {
   const { addItem, openCart } = useCart()
   const [recentModels, setRecentModels] = useState<Model3D[]>([])
   const [featuredArtists, setFeaturedArtists] = useState<FeaturedArtist[]>([])
+  const [modelsLoading, setModelsLoading] = useState(true)
   const [modelsError, setModelsError] = useState(false)
   const [artistsError, setArtistsError] = useState(false)
 
@@ -29,6 +30,7 @@ export default function Home() {
     api.get<PaginatedResponse<Model3D>>('/models?limit=6&sortBy=newest')
       .then(res => setRecentModels(res.data))
       .catch(() => setModelsError(true))
+      .finally(() => setModelsLoading(false))
     api.get<FeaturedArtist[]>('/artists/featured')
       .then(setFeaturedArtists)
       .catch(() => setArtistsError(true))
@@ -94,7 +96,7 @@ export default function Home() {
         )}
 
         {/* Derniers modèles */}
-        {(recentModels.length > 0 || modelsError) && (
+        {(modelsLoading || recentModels.length > 0 || modelsError) && (
           <section className="vk-section">
             <div className="vk-section__head">
               <h2 className="vk-section__title">Derniers modèles</h2>
@@ -110,6 +112,10 @@ export default function Home() {
               <p style={{ fontFamily: 'var(--font-sans)', fontSize: 'var(--fs-label)', color: 'var(--text-tertiary)' }}>
                 Impossible de charger les modèles.
               </p>
+            ) : modelsLoading ? (
+              <div className="vk-grid">
+                {Array.from({ length: 6 }).map((_, i) => <ModelCardSkeleton key={i} />)}
+              </div>
             ) : (
             <div className="vk-grid">
               {recentModels.map(model => (
