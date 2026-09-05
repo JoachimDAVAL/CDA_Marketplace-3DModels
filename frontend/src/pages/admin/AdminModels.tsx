@@ -25,9 +25,6 @@ const STATUS_OPTS = [
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'En attente', ONLINE: 'En ligne', REJECTED: 'Refuse', OFFLINE: 'Hors ligne',
 }
-const STATUS_TONE: Record<string, 'warning' | 'success' | 'danger' | 'neutral'> = {
-  PENDING: 'warning', ONLINE: 'success', REJECTED: 'danger', OFFLINE: 'neutral',
-}
 
 const LIMIT = 20
 const COL = {

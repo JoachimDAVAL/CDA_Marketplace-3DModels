@@ -7,7 +7,6 @@ import type { TabItem } from '../components/ui'
 import { Viewer3D } from '../components/viewer/Viewer3D'
 import { ReviewsList } from '../components/reviews/ReviewsList'
 import { useCart } from '../contexts/CartContext'
-import { useAuth } from '../contexts/AuthContext'
 
 const TABS: TabItem[] = [
   { id: 'overview', label: "Vue d'ensemble" },
@@ -29,12 +28,10 @@ export default function ModelDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { items, addItem, openCart } = useCart()
-  const { isAuthenticated } = useAuth()
   const [model, setModel] = useState<Model3D | null>(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [activeTab, setActiveTab] = useState('overview')
-  const [canReview, setCanReview] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -44,18 +41,6 @@ export default function ModelDetail() {
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false))
   }, [id])
-
-  useEffect(() => {
-    if (!id || !isAuthenticated) return
-    api.get<{ status: string; items: { modelId: string | null }[] }[]>('/orders')
-      .then(orders => {
-        const bought = orders.some(
-          o => o.status === 'PAID' && o.items.some(i => i.modelId === id)
-        )
-        setCanReview(bought)
-      })
-      .catch(() => {})
-  }, [id, isAuthenticated])
 
   if (loading) {
     return (
@@ -170,7 +155,7 @@ export default function ModelDetail() {
         )}
 
         {activeTab === 'reviews' && (
-          <ReviewsList modelId={model.id} canReview={canReview} />
+          <ReviewsList modelId={model.id} canReview={!!model.owned} />
         )}
 
         <div className="vk-prod__buybar">
