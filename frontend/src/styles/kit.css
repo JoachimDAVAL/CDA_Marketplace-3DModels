@@ -552,3 +552,111 @@
 @media (max-width:1100px){
   .vk-admin__search{ width:100%; }
 }
+
+/* ============================================================
+   Mobile nav — defaults desktop pour les nouvelles classes
+   ============================================================ */
+.vk-nav__auth   { display: contents; }
+.vk-nav__burger { display: none; }
+.vk-nav__mobile { display: none; }
+
+/* ============================================================
+   Responsive — 768px (tablettes et mobiles)
+   ============================================================ */
+@media (max-width: 768px) {
+  :root {
+    --gutter:     20px;
+    --fs-display: 32px;
+    --fs-h1:      26px;
+    --fs-h2:      22px;
+    --fs-h3:      20px;
+  }
+
+  /* Navbar */
+  .vk-nav__left   { display: none; }
+  .vk-nav__auth   { display: none; }
+  .vk-nav__burger { display: flex; }
+  .vk-nav__center { position: absolute; left: 50%; transform: translateX(-50%); }
+
+  /* Mobile menu panel */
+  .vk-nav__mobile {
+    display: flex; flex-direction: column; gap: 8px;
+    position: fixed; top: var(--topbar-h); left: 0; right: 0; bottom: 0; z-index: 29;
+    padding: 20px; background: var(--ink-1); border-top: 1px solid var(--border-subtle); overflow-y: auto;
+    opacity: 0; visibility: hidden; transform: translateY(-6px);
+    transition: opacity var(--dur-base) var(--ease-standard),
+                transform var(--dur-base) var(--ease-standard),
+                visibility 0s var(--dur-base);
+  }
+  .vk-nav__mobile--open {
+    opacity: 1; visibility: visible; transform: translateY(0);
+    transition: opacity var(--dur-base) var(--ease-standard),
+                transform var(--dur-base) var(--ease-standard),
+                visibility 0s;
+  }
+  .vk-nav__mobile-search { width: 100%; }
+  .vk-nav__mobile-links  { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
+  .vk-nav__mobile-link   {
+    display: flex; align-items: center;
+    padding: 14px 16px; border-radius: var(--radius-md);
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-body);
+    color: var(--text-secondary);
+    transition: background var(--dur-base) var(--ease-standard), color var(--dur-base) var(--ease-standard);
+  }
+  .vk-nav__mobile-link:hover,
+  .vk-nav__mobile-link--active { background: var(--surface-hover); color: var(--text-primary); }
+  .vk-nav__mobile-foot {
+    margin-top: auto; padding-top: 20px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .vk-nav__mobile-profile {
+    display: flex; align-items: center; gap: 12px;
+    font-family: var(--font-sans); font-weight: var(--fw-medium); font-size: var(--fs-body);
+    color: var(--text-primary);
+  }
+  .vk-nav__mobile-auth     { display: flex; gap: 10px; }
+  .vk-nav__mobile-auth > * { flex: 1; }
+
+  /* Hero */
+  .vk-hero        { height: auto; min-height: 320px; margin: 12px var(--gutter) 0; }
+  .vk-hero__inner { padding: 28px 24px; }
+  .vk-hero__actions { flex-wrap: wrap; }
+
+  /* Sections */
+  .vk-section            { padding: 32px 0 48px; }
+  .vk-section--spotlight { padding: 32px 0 16px; }
+
+  /* Spotlight */
+  .vk-spotlight__body { padding: 24px; }
+
+  /* Product detail */
+  .vk-product__panel { padding: 20px; }
+
+  /* Profil */
+  .vk-profile__fields { grid-template-columns: 1fr; }
+  .vk-profile__pw-row { grid-template-columns: 1fr; }
+
+  /* Dashboard */
+  .vk-dash       { padding: 24px var(--gutter) 48px; }
+  .vk-dash__body { padding: 24px; }
+  .vk-dash__grid { grid-template-columns: 1fr; }
+
+  /* Artiste public */
+  .vk-artist        { grid-template-columns: auto 1fr; }
+  .vk-artist__stats { grid-column: 1 / -1; flex-wrap: wrap; }
+
+  /* Footer */
+  .vk-footer { flex-direction: column; align-items: center; text-align: center; gap: 16px; padding: 28px var(--gutter); }
+}
+
+/* ============================================================
+   Responsive — 480px (petits mobiles)
+   ============================================================ */
+@media (max-width: 480px) {
+  .vk-grid            { grid-template-columns: 1fr; }
+  .vk-hero__actions   { flex-direction: column; align-items: flex-start; }
+  .vk-product__viewer { min-height: 260px; }
+  .vk-dash__body      { padding: 16px; }
+  .vk-studio__main    { padding: 24px 16px 48px; }
+}
