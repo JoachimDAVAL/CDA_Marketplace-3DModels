@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Body, Param, Query, UseGuards, UseInterceptors, UploadedFiles } from '@nestjs/common';
+import { Controller, Post, Get, Patch, Body, Param, Query, UseGuards, UseInterceptors, UploadedFiles, BadRequestException } from '@nestjs/common';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ModelsService } from './models.service';
 import { CreateModelDto } from './dto/create-model.dto';
@@ -39,10 +39,30 @@ export class ModelsController {
   // FileFieldsInterceptor parse le multipart/form-data et expose les fichiers
   // dans req.files. On attend deux champs : "renders" (1 à 10 images) et "source" (1 GLB).
   @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'renders', maxCount: 10 },
-      { name: 'source', maxCount: 1 },
-    ]),
+    FileFieldsInterceptor(
+      [
+        { name: 'renders', maxCount: 10 },
+        { name: 'source', maxCount: 1 },
+      ],
+      {
+        limits: { fileSize: 100 * 1024 * 1024, files: 11 },
+        fileFilter: (_req, file, cb) => {
+          if (file.fieldname === 'source') {
+            const allowed = ['model/gltf-binary', 'application/octet-stream'];
+            if (!allowed.includes(file.mimetype) && !file.originalname.toLowerCase().endsWith('.glb')) {
+              return cb(new BadRequestException('Only GLB files are accepted for source'), false);
+            }
+          }
+          if (file.fieldname === 'renders') {
+            const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+            if (!allowed.includes(file.mimetype)) {
+              return cb(new BadRequestException('Only JPEG/PNG/WEBP accepted for renders'), false);
+            }
+          }
+          cb(null, true);
+        },
+      },
+    ),
   )
   create(
     @CurrentUser() user: { id: string },
