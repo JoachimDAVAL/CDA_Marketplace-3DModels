@@ -1,6 +1,6 @@
 import { Suspense, Component, type ErrorInfo, type ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Stage, useGLTF } from '@react-three/drei'
+import { OrbitControls, Stage, useGLTF, useProgress } from '@react-three/drei'
 import { Badge, Icon } from '../ui'
 
 // ─── Error boundary ───────────────────────────────────────────────────────────
@@ -76,6 +76,14 @@ function GLBModel({ url }: { url: string }) {
   return <primitive object={scene} dispose={null} />
 }
 
+// ─── Progress-based spinner (replaces GLBModelSentinel pattern) ──────────────
+
+function ViewerLoader() {
+  const { active } = useProgress()
+  if (!active) return null
+  return <ViewerSpinner />
+}
+
 // ─── Public component ─────────────────────────────────────────────────────────
 
 interface Viewer3DProps {
@@ -108,10 +116,7 @@ export function Viewer3D({ url }: Viewer3DProps) {
           </Suspense>
           <OrbitControls makeDefault enablePan={false} />
         </Canvas>
-        <Suspense fallback={<ViewerSpinner />}>
-          {/* Mirror Suspense to drive the overlay spinner */}
-          <GLBModelSentinel url={url} />
-        </Suspense>
+        <ViewerLoader />
       </ViewerErrorBoundary>
 
       <span className="vk-viewer__badge">
@@ -121,9 +126,3 @@ export function Viewer3D({ url }: Viewer3DProps) {
   )
 }
 
-// Silent sentinel outside Canvas — suspends until GLTF is cached, then renders nothing.
-// Drives the overlay spinner without needing to be inside the WebGL context.
-function GLBModelSentinel({ url }: { url: string }) {
-  useGLTF(url) // suspends until loaded (cache hit after Canvas loads it)
-  return null
-}
