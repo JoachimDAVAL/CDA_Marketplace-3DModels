@@ -66,10 +66,15 @@ export class CartService {
     });
     if (existingItem) throw new ConflictException('Model already in cart');
 
-    return this.prisma.cartItem.create({
-      data: { cartId: cart.id, modelId: dto.modelId },
-      include: { model: true },
-    });
+    try {
+      return await this.prisma.cartItem.create({
+        data: { cartId: cart.id, modelId: dto.modelId },
+        include: { model: true },
+      });
+    } catch (e) {
+      if (e.code === 'P2002') throw new ConflictException('Model already in cart');
+      throw e;
+    }
   }
 
   async removeItem(userId: string, modelId: string) {
