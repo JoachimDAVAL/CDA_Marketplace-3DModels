@@ -29,9 +29,12 @@ const COL = {
 }
 
 function UserRow({
-  user, isSelf, onDelete,
+  user, isSelf, onDelete, onArtistStatus,
 }: {
-  user: AdminUser; isSelf: boolean; onDelete: (id: string) => void
+  user: AdminUser
+  isSelf: boolean
+  onDelete: (id: string) => void
+  onArtistStatus: (artistId: string, status: 'APPROVED' | 'REJECTED') => void
 }) {
   const [confirm, setConfirm] = useState(false)
   const [leaving, setLeaving] = useState(false)
@@ -73,7 +76,25 @@ function UserRow({
       </span>
 
       <div style={COL.actions}>
-        {!confirm && (
+        {user.artist?.status === 'PENDING' && !confirm && (
+          <>
+            <button
+              className="vk-confirm__btn vk-confirm__btn--yes"
+              title="Approuver"
+              onClick={() => onArtistStatus(user.artist!.id, 'APPROVED')}
+            >
+              <Icon name="check" size={14} />
+            </button>
+            <button
+              className="vk-confirm__btn vk-confirm__btn--no"
+              title="Refuser"
+              onClick={() => onArtistStatus(user.artist!.id, 'REJECTED')}
+            >
+              <Icon name="x" size={14} />
+            </button>
+          </>
+        )}
+        {!confirm && !(user.artist?.status === 'PENDING') && (
           <Badge tone={ROLE_TONE[user.role] ?? 'neutral'}>{ROLE_LABEL[user.role] ?? user.role}</Badge>
         )}
         {confirm ? (
@@ -133,6 +154,11 @@ export default function AdminUsers() {
     fetchUsers()
   }
 
+  const handleArtistStatus = async (artistId: string, status: 'APPROVED' | 'REJECTED') => {
+    await api.patch(`/artists/${artistId}/status`, { status })
+    fetchUsers()
+  }
+
   return (
     <>
       <div className="vk-studio__head">
@@ -183,6 +209,7 @@ export default function AdminUsers() {
                 user={u}
                 isSelf={u.id === self?.id}
                 onDelete={handleDelete}
+                onArtistStatus={handleArtistStatus}
               />
             ))}
           </div>
