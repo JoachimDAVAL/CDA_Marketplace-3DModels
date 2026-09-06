@@ -675,6 +675,13 @@
   .vk-profile__fields { grid-template-columns: 1fr; }
   .vk-profile__pw-row { grid-template-columns: 1fr; }
 
+  /* Studio / Admin layout */
+  .vk-studio { grid-template-columns: 1fr; }
+  .vk-studio__side { position: static; height: auto; }
+  .vk-studio__main { max-height: none; overflow-y: visible; }
+  .vk-studio__stats { grid-template-columns: repeat(2, 1fr); }
+  .vk-studio__split { grid-template-columns: 1fr; }
+
   /* Dashboard */
   .vk-dash       { padding: 24px var(--gutter) 48px; }
   .vk-dash__body { padding: 24px; }
