@@ -191,7 +191,7 @@ describe('Orders (e2e)', () => {
         .post('/api/orders/webhook')
         .set('stripe-signature', 'test-sig')
         .send(Buffer.from('{}'))
-        .expect(201);
+        .expect(200);
 
       const updated = await prisma.order.findUnique({ where: { id: order.id } });
       expect(updated!.status).toBe('PAID');
@@ -212,7 +212,7 @@ describe('Orders (e2e)', () => {
         .post('/api/orders/webhook')
         .set('stripe-signature', 'test-sig')
         .send(Buffer.from('{}'))
-        .expect(201);
+        .expect(200);
 
       const updated = await prisma.order.findUnique({ where: { id: order.id } });
       expect(updated!.status).toBe('FAILED');
