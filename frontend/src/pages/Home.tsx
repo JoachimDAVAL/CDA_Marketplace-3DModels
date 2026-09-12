@@ -40,7 +40,7 @@ export default function Home() {
     <div>
       {/* Hero */}
       <div className="vk-hero">
-        <div className="vk-hero__bg" style={{ background: 'linear-gradient(135deg, #111 0%, #1a1a2e 100%)' }} />
+        <div className="vk-hero__bg" style={{ backgroundImage: 'url(/images/lies_of_p_wallpaper.webp)' }} />
         <div className="vk-hero__scrim" />
         <div className="vk-hero__inner">
           <span className="vk-hero__eyebrow">Marketplace de modèles 3D</span>
