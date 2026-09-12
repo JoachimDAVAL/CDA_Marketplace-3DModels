@@ -103,7 +103,7 @@
 .vk-nav__left{ flex:1; display:flex; align-items:center; gap:20px; }
 .vk-nav__center{ display:flex; justify-content:center; align-items:center; }
 .vk-nav__links{ display:flex; align-items:center; gap:16px; }
-.vk-nav__link{ display:inline-flex; align-items:center; height:42px; padding:0 22px; font-family:var(--font-sans); font-size:var(--fs-title); font-weight:var(--fw-medium); color:var(--text-secondary); cursor:pointer; border-radius:var(--radius-pill); box-shadow:inset 0 0 0 1px var(--border-default); transition: color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard), background var(--dur-base) var(--ease-standard); }
+.vk-nav__link{ display:inline-flex; align-items:center; height:42px; padding:0 22px; font-family:var(--font-sans); font-size:var(--fs-title); font-weight:var(--fw-medium); color:var(--text-secondary); cursor:pointer; border-radius:var(--radius-md); box-shadow:inset 0 0 0 1px var(--border-default); transition: color var(--dur-base) var(--ease-standard), box-shadow var(--dur-base) var(--ease-standard), background var(--dur-base) var(--ease-standard); }
 .vk-nav__link:hover{ color:var(--text-primary); box-shadow:inset 0 0 0 1px var(--border-strong); background:var(--surface-hover); }
 .vk-nav__link--active{ color:var(--text-primary); box-shadow:inset 0 0 0 1px var(--border-strong); }
 .vk-nav__right{ flex:1; display:flex; align-items:center; justify-content:flex-end; gap:14px; }
